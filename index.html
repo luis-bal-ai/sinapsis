@@ -675,7 +675,6 @@ function vistaHoy(){
   const saludo = new Date().getHours()<13 ? "Buenos días" : new Date().getHours()<21 ? "Buenas tardes" : "Buenas noches";
   let h = cabecera(fmtLargo(new Date()), "", `${esc(saludo)}, <em>${esc(NOMBRE)}</em>`);
   const fr = FRASES[Math.floor((new Date() - new Date(new Date().getFullYear(),0,0))/864e5) % FRASES.length];
-  h += `<figure class="quote" style="margin:0"><span class="lab">Frase del día</span><p>“${esc(fr[0])}”</p><span>${esc(fr[1])}</span></figure>`;
   if (exam){
     const e = exam.o, n = diasHasta(e.fecha), p = progreso(e.temas);
     h += `<button class="exam-hero" data-a="ver" data-tipo="exam" data-id="${e.id}">
@@ -689,7 +688,6 @@ function vistaHoy(){
   h += `<section class="card"><div class="sec-head"><h2>¿Cómo estás hoy?</h2>${am?`<span class="muted small">Puedes cambiarlo</span>`:""}</div>
     <div class="mood" role="radiogroup" aria-label="Ánimo de hoy">${ANIMOS.map(x=>`<button style="--mc:${x.c}" class="${am&&am.v===x.v?"on":""}" data-a="animo" data-v="${x.v}" role="radio" aria-checked="${!!(am&&am.v===x.v)}">${cara(x.v)}${x.n}</button>`).join("")}</div>
     ${am && am.v<=2 ? `<button class="btn" data-a="calma" style="align-self:flex-start">Tómate un rato en Calma</button>` : ""}</section>`;
-  h += `<button class="calma-btn" data-a="calma"><span><b>Calma</b><span>Burbujas, cristal, respiración y sonidos para dormir</span></span><i aria-hidden="true">→</i></button>`;
   const act = state.estudio.activo;
   if (act) h += `<button class="pomo-mini" data-a="irEstudio"><span><span class="muted small" style="font-weight:700;text-transform:uppercase;letter-spacing:.05em">${act.fase==="foco"?(act.pausa!=null?"En pausa":"Estudiando"):"Descanso"}</span><br><span style="font-weight:600">${esc(asig(act.asig).nombre)}</span></span><b id="pomo-mini-t">${mmss(restante())}</b></button>`;
   const nDue = tarjetasHoy().length;
@@ -699,6 +697,8 @@ function vistaHoy(){
   h += `<section class="card"><div class="sec-head"><h2>Ejercicio de hoy</h2><button class="btn ghost" data-a="tab" data-tab="ejer">Ver semana</button></div>
     ${ejHoy.length ? `<div class="list">${ejHoy.map(r=>itemRegistro(r,false)).join("")}</div>` : ""}
     <div class="minis">${state.ejercicio.tipos.map(t=>`<button class="chip" data-a="registrar" data-id="${t.id}"><span class="dot" style="background:${t.color}"></span>${esc(t.nombre)}</button>`).join("")}</div></section>`;
+  h += `<button class="calma-btn" data-a="calma"><span><b>Calma</b><span>Burbujas, cristal, respiración y sonidos para dormir</span></span><i aria-hidden="true">→</i></button>`;
+  h += `<figure class="quote" style="margin:10px 0 0"><span class="lab">Frase del día</span><p>“${esc(fr[0])}”</p><span>${esc(fr[1])}</span></figure>`;
   return h;
 }
 

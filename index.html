@@ -276,6 +276,19 @@ details summary::-webkit-details-marker{display:none}
 .pomo-mini{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-radius:var(--r);background:var(--lilac-soft);border:0;width:100%;text-align:left;color:var(--ink)}
 .pomo-mini b{font-family:var(--f-display);font-size:26px;font-variant-numeric:tabular-nums;color:var(--lilac)}
 
+/* Ánimo */
+.mood{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.mood button{border:0;background:var(--surface-2);border-radius:16px;padding:10px 2px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--ink-3);min-width:0;transition:transform .15s,background .2s}
+.mood button svg{width:34px;height:34px}
+.mood button.on{background:var(--mc);color:#fff;transform:scale(1.04)}
+.mood button:active{transform:scale(.94)}
+.mood-chart svg{width:100%;height:auto;display:block}
+.insight{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;padding:10px 12px;border-radius:14px;background:var(--surface-2)}
+.insight b{font-family:var(--f-display);font-size:20px;font-variant-numeric:tabular-nums;min-width:3.2em;text-align:center}
+.insight b.up{color:var(--ok)} .insight b.down{color:var(--late)}
+.insight span{font-size:14px;color:var(--ink-2)}
+#confeti{position:fixed;inset:0;pointer-events:none;z-index:70}
+
 /* Barra inferior */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;pointer-events:none;
   padding:0 max(12px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
@@ -373,7 +386,10 @@ const NIVELES = [
   {n:"Operaciones concretas", min:500},
   {n:"Operaciones formales", min:1200}
 ];
-const XP = {sub:5, tema:5, trab:25, exam:40, hab:10, ejer:10, card:2, foco:15};
+const XP = {sub:5, tema:5, trab:25, exam:40, hab:10, ejer:10, card:2, foco:15, animo:5};
+const ANIMOS = [{v:1,n:"Fatal",c:"#D7263D"},{v:2,n:"Regular",c:"#F2782B"},{v:3,n:"Normal",c:"#B8A13A"},{v:4,n:"Bien",c:"#5DBB63"},{v:5,n:"Genial",c:"#17A57E"}];
+function cara(v){ const boca = {1:"M11 24 Q17 18 23 24",2:"M11 23 Q17 20.5 23 23",3:"M11 22 L23 22",4:"M11 21 Q17 25 23 21",5:"M10 20 Q17 28 24 20"}[v];
+  return `<svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="17" cy="17" r="14.5"/><circle cx="12" cy="14" r="1.2" fill="currentColor"/><circle cx="22" cy="14" r="1.2" fill="currentColor"/><path d="${boca}"/></svg>`; }
 const PRESETS = [{id:"p25", foco:25, desc:5, n:"Clásico"},{id:"p50", foco:50, desc:10, n:"Largo"},{id:"p15", foco:15, desc:3, n:"Rápido"}];
 const INTERVALOS = [0,1,3,7,14,30,60,120]; // días hasta el siguiente repaso según la caja
 const ICON = {
@@ -427,7 +443,7 @@ function tiposBase(){ return [
   {id:"x2", nombre:"Gimnasio", color:COLORES[1], min:60},
   {id:"x3", nombre:"Meditación", color:COLORES[3], min:10}
 ]; }
-const inicial = () => ({v:1, ejemplo:false, paleta2:true, asignaturas:ASIGNATURAS.map(([nombre,color])=>({id:uid(), nombre, color})), trabajos:[], examenes:[], habitos:[], marcas:{}, log:[], eventos:[], ejercicio:{tipos:tiposBase(), registros:[]}, tarjetas:[], estudio:{sesiones:[], activo:null}, vistos:[], updatedAt:Date.now()});
+const inicial = () => ({v:1, ejemplo:false, paleta2:true, asignaturas:ASIGNATURAS.map(([nombre,color])=>({id:uid(), nombre, color})), trabajos:[], examenes:[], habitos:[], marcas:{}, log:[], eventos:[], ejercicio:{tipos:tiposBase(), registros:[]}, tarjetas:[], estudio:{sesiones:[], activo:null}, animo:{}, vistos:[], updatedAt:Date.now()});
 // Completa estados guardados con versiones anteriores de la app.
 function completar(st){
   if (!st || st.ejemplo) return inicial();
@@ -437,6 +453,7 @@ function completar(st){
   st.ejercicio.registros = st.ejercicio.registros || [];
   st.tarjetas = st.tarjetas || [];
   st.estudio = st.estudio || {sesiones:[], activo:null};
+  st.animo = st.animo || {};
   if (!st.paleta2){
     const mapa = c => COLORES_ANTES[c] || c;
     [st.asignaturas, st.habitos, st.eventos, st.ejercicio.tipos].forEach(arr => arr.forEach(x => x.color = mapa(x.color)));
@@ -543,6 +560,7 @@ const LOGROS = [
   {id:"bandura", who:"Bandura", n:"Autoeficacia", d:"Haz ejercicio 3 días en una misma semana", ok:()=>{ const s={}; state.ejercicio.registros.forEach(r=>{ const k=iso(lunes(parse(r.fecha))); (s[k]=s[k]||new Set()).add(r.fecha); }); return Object.values(s).some(x=>x.size>=3); }},
   {id:"baddeley", who:"Baddeley", n:"Memoria de trabajo", d:"Repasa 50 tarjetas", ok:()=>state.log.filter(e=>e.k==="card").length>=50},
   {id:"posner", who:"Posner", n:"Atención sostenida", d:"Completa 10 sesiones de estudio", ok:()=>state.estudio.sesiones.length>=10},
+  {id:"beck", who:"Aaron Beck", n:"Autoobservación", d:"Registra tu ánimo 14 días", ok:()=>Object.keys(state.animo).length>=14},
   {id:"piaget", who:"Piaget", n:"Operaciones formales", d:"Llega al último nivel", ok:()=>nivel().i===3}
 ];
 function revisarLogros(){
@@ -551,7 +569,29 @@ function revisarLogros(){
   nuevos.forEach(l=>state.vistos.push(l.id));
   guardarLocal(); programarGuardado();
   const l = nuevos[0];
+  confeti(true);
   toast(`Logro: ${l.n}`, MENSAJES_LUIS[Math.floor(Math.random()*MENSAJES_LUIS.length)]);
+}
+function confeti(fuerte){
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  let cv = document.getElementById("confeti");
+  if (!cv){ cv = document.createElement("canvas"); cv.id = "confeti"; document.body.appendChild(cv); }
+  const dpr = window.devicePixelRatio||1, W = innerWidth, H = innerHeight;
+  cv.width = W*dpr; cv.height = H*dpr; const ctx = cv.getContext("2d"); ctx.scale(dpr,dpr);
+  const cols = ["#EE3F7E","#8B7CF6","#D4F25A","#3BA4E8","#F59E42","#FFFFFF"];
+  const n = fuerte ? 160 : 90, ps = [];
+  for (let i=0;i<n;i++){ const lado = i%2 ? 1 : -1;
+    ps.push({x: lado>0 ? -10 : W+10, y: H*0.62, vx: -lado*(4+Math.random()*7)*-1, vy: -(9+Math.random()*9), r: 4+Math.random()*5,
+      c: cols[i%cols.length], a: Math.random()*6, va: (Math.random()-.5)*.3, f: Math.random()<.5}); }
+  ps.forEach(p=>{ p.vx = (p.x<0?1:-1)*(3+Math.random()*7); });
+  const t0 = performance.now();
+  (function paso(t){
+    ctx.clearRect(0,0,W,H);
+    ps.forEach(p=>{ p.vy += .32; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.a += p.va;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a); ctx.fillStyle = p.c;
+      if (p.f) ctx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2); else { ctx.beginPath(); ctx.arc(0,0,p.r/2.4,0,7); ctx.fill(); } ctx.restore(); });
+    if (t - t0 < 2600) requestAnimationFrame(paso); else ctx.clearRect(0,0,W,H);
+  })(t0);
 }
 let toastT;
 function toast(t, s){
@@ -607,6 +647,9 @@ function vistaHoy(){
   }
   h += `<section class="card"><div class="sec-head"><h2>Esta semana</h2><button class="btn ghost" data-a="tab" data-tab="uni">Ver todo</button></div>
     ${semana.length||planes.length ? `<div class="list">${[...semana.map(p=>({f:p.o.fecha, h:itemPendiente(p)})), ...planes.map(v=>({f:v.fecha, h:itemEvento(v)}))].sort((a,b)=>a.f.localeCompare(b.f)).map(x=>x.h).join("")}</div>` : `<div class="empty">Nada en los próximos 7 días.</div>`}</section>`;
+  const am = state.animo[hoy()];
+  h += `<section class="card"><div class="sec-head"><h2>¿Cómo estás hoy?</h2>${am?`<span class="muted small">Puedes cambiarlo</span>`:""}</div>
+    <div class="mood" role="radiogroup" aria-label="Ánimo de hoy">${ANIMOS.map(x=>`<button style="--mc:${x.c}" class="${am&&am.v===x.v?"on":""}" data-a="animo" data-v="${x.v}" role="radio" aria-checked="${!!(am&&am.v===x.v)}">${cara(x.v)}${x.n}</button>`).join("")}</div></section>`;
   const act = state.estudio.activo;
   if (act) h += `<button class="pomo-mini" data-a="irEstudio"><span><span class="muted small" style="font-weight:700;text-transform:uppercase;letter-spacing:.05em">${act.fase==="foco"?(act.pausa!=null?"En pausa":"Estudiando"):"Descanso"}</span><br><span style="font-weight:600">${esc(asig(act.asig).nombre)}</span></span><b id="pomo-mini-t">${mmss(restante())}</b></button>`;
   const nDue = tarjetasHoy().length;
@@ -673,7 +716,8 @@ function vistaProgreso(){
     <div class="net-cap"><div><b>${state.log.length}</b><br><span>conexiones creadas</span></div><span style="text-align:right">${nv.xp} puntos</span></div></div>`;
   h += `<section class="card"><div class="sec-head"><h2>Etapa: ${esc(nv.nombre)}</h2><span class="muted small">${nv.sig?`${nv.sig.min-nv.xp} para la siguiente`:"Etapa final"}</span></div>
     <div class="stages">${NIVELES.map((l,j)=>`<div class="stage ${j===nv.i?"cur":""}"><i><b style="width:${j<nv.i?100:j===nv.i?Math.round(nv.pct*100):0}%"></b></i>${esc(l.n)}</div>`).join("")}</div>
-    <p class="muted small" style="margin:0">Hábito o ejercicio +10 · subtarea o tema +5 · trabajo entregado +25 · examen hecho +40</p></section>`;
+    <p class="muted small" style="margin:0">Ánimo +5 · hábito o ejercicio +10 · subtarea o tema +5 · trabajo entregado +25 · examen hecho +40</p></section>`;
+  h += vistaAnimo();
   const got = LOGROS.filter(l=>l.ok()).length;
   h += `<section class="card"><div class="sec-head"><h2>Logros</h2><span class="muted small">${got}/${LOGROS.length}</span></div>
     <div class="badges">${LOGROS.map(l=>{ const on=l.ok(); return `<div class="badge ${on?"on":""}"><span class="who">${esc(l.who)}</span><span class="n">${esc(l.n)}</span><span class="d">${esc(l.d)}</span></div>`; }).join("")}</div></section>`;
@@ -730,7 +774,7 @@ function pintarEstudio(){
     anotarLogrosFin();
     abrir(`<div class="study" style="justify-content:center;align-items:center;text-align:center;min-height:40vh">
       <div style="font-family:var(--f-display);font-weight:800;font-size:56px;color:var(--accent);line-height:1">${se.total}</div>
-      <h2>Repaso terminado</h2><p class="muted" style="margin:0">Has acertado ${se.ok} a la primera. Tu cerebro acaba de reforzar ${se.total} ${se.total===1?"conexión":"conexiones"}.</p>
+      <h2>Repaso terminado</h2>${(setTimeout(()=>confeti(),150),"")}<p class="muted" style="margin:0">Has acertado ${se.ok} a la primera. Tu cerebro acaba de reforzar ${se.total} ${se.total===1?"conexión":"conexiones"}.</p>
       <button class="btn primary" data-a="cerrarEstudio">Listo</button></div>`);
     return;
   }
@@ -814,7 +858,7 @@ function finFase(){
     registrarSesion(a.dur, a.fin);
     const finDesc = a.fin + a.desc*60000;
     state.estudio.activo = ahora < finDesc ? {...a, fase:"descanso", dur:a.desc, fin:finDesc, pausa:null} : null;
-    pitido(); toast(`${a.dur} minutos de estudio`, ahora < finDesc ? `Ahora ${a.desc} min de descanso. ${MENSAJES_LUIS[Math.floor(Math.random()*MENSAJES_LUIS.length)]}` : "Sesión guardada.");
+    pitido(); confeti(); toast(`${a.dur} minutos de estudio`, ahora < finDesc ? `Ahora ${a.desc} min de descanso. ${MENSAJES_LUIS[Math.floor(Math.random()*MENSAJES_LUIS.length)]}` : "Sesión guardada.");
   } else { state.estudio.activo = null; pitido(); toast("Descanso terminado", "¿Otra ronda?"); }
   commit();
 }
@@ -834,6 +878,43 @@ setInterval(() => {
   const m = document.getElementById("pomo-mini-t"); if (m) m.textContent = mmss(rem);
 }, 1000);
 document.addEventListener("visibilitychange", () => { if (!document.hidden && state.estudio?.activo && state.estudio.activo.pausa==null && state.estudio.activo.fin <= Date.now()) finFase(); });
+
+
+/* ---------- Ánimo: gráfica y relaciones ---------- */
+function vistaAnimo(){
+  const dias = Array.from({length:30},(_,i)=>iso(addDays(new Date(), i-29)));
+  const reg = Object.entries(state.animo);
+  let h = `<section class="card"><div class="sec-head"><h2>Tu ánimo</h2><span class="muted small">últimos 30 días</span></div>`;
+  if (reg.length < 2) return h + `<div class="empty">Marca cómo estás cada día en la pestaña Hoy. Con unos días de datos verás aquí tu evolución y qué cosas te sientan mejor.</div></section>`;
+  // Gráfica
+  const W=320,H=130,L=40,R=8,T=10,B=22, x = i => L + i*(W-L-R)/29, y = v => T + (5-v)*(H-T-B)/4;
+  let path = "", prev = false;
+  dias.forEach((d,i)=>{ const a = state.animo[d]; if (a){ path += (prev?"L":"M")+x(i).toFixed(1)+","+y(a.v).toFixed(1); prev = true; } else prev = false; });
+  const media = reg.reduce((t,[,a])=>t+a.v,0)/reg.length;
+  h += `<div class="mood-chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Ánimo de los últimos 30 días, media ${media.toFixed(1)} sobre 5">
+    ${[1,3,5].map(v=>`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L-6}" y="${y(v)+3.5}" font-size="10" fill="var(--ink-3)" text-anchor="end">${ANIMOS[v-1].n}</text>`).join("")}
+    <path d="${path}" fill="none" stroke="var(--lilac)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    ${dias.map((d,i)=>{ const a = state.animo[d]; return a?`<circle cx="${x(i).toFixed(1)}" cy="${y(a.v).toFixed(1)}" r="${d===hoy()?5:3.6}" fill="${ANIMOS[a.v-1].c}" stroke="var(--surface)" stroke-width="1.5"/>`:""; }).join("")}
+    <text x="${L}" y="${H-5}" font-size="10" fill="var(--ink-3)">${fmtFecha(dias[0])}</text><text x="${W-R}" y="${H-5}" font-size="10" fill="var(--ink-3)" text-anchor="end">Hoy</text></svg></div>
+    <p class="muted small" style="margin:0">Media: <b style="color:var(--ink)">${media.toFixed(1).replace(".",",")}</b> sobre 5 · ${reg.length} ${reg.length===1?"día registrado":"días registrados"}</p>`;
+  // Relaciones: compara la media los días con y sin cada cosa
+  const factores = [];
+  const minEstudio = d => state.estudio.sesiones.filter(s=>s.fecha===d).reduce((t,s)=>t+s.min,0);
+  factores.push({n:"haces ejercicio", f:d=>state.ejercicio.registros.some(r=>r.fecha===d)});
+  factores.push({n:"estudias 1 hora o más", f:d=>minEstudio(d)>=60});
+  factores.push({n:"repasas tarjetas", f:d=>state.log.some(e=>e.k==="card" && e.d===d)});
+  state.habitos.forEach(hb=>factores.push({n:`cumples “${hb.nombre}”`, f:d=>(state.marcas[hb.id]||[]).includes(d)}));
+  state.ejercicio.tipos.forEach(t=>factores.push({n:`haces ${t.nombre.toLowerCase()}`, f:d=>state.ejercicio.registros.some(r=>r.fecha===d && r.tipo===t.id)}));
+  const res = factores.map(fc=>{ const si = reg.filter(([d])=>fc.f(d)).map(([,a])=>a.v), no = reg.filter(([d])=>!fc.f(d)).map(([,a])=>a.v);
+    if (si.length<2 || no.length<2) return null; const m = a=>a.reduce((t,v)=>t+v,0)/a.length;
+    return {n:fc.n, si:m(si), no:m(no), dif:m(si)-m(no), k:si.length}; }).filter(r=>r && Math.abs(r.dif)>=0.3).sort((a,b)=>Math.abs(b.dif)-Math.abs(a.dif)).slice(0,4);
+  const f1 = v => v.toFixed(1).replace(".",",");
+  if (res.length){
+    h += `<h2 style="font-size:16px">Lo que te sienta bien (y lo que no)</h2><div style="display:flex;flex-direction:column;gap:8px">${res.map(r=>`<div class="insight"><b class="${r.dif>0?"up":"down"}">${r.dif>0?"+":""}${f1(r.dif)}</b><span>Los días que ${esc(r.n)}, tu ánimo es de ${f1(r.si)} frente a ${f1(r.no)} cuando no.</span></div>`).join("")}</div>
+      <p class="muted small" style="margin:0">Ya lo sabes de clase: correlación no implica causalidad. Pero da pistas.</p>`;
+  } else h += `<p class="muted small" style="margin:0">Cuando tengas más días registrados, aquí verás qué cosas se relacionan con que estés mejor: ejercicio, estudio, tus hábitos…</p>`;
+  return h + `</section>`;
+}
 
 /* ---------- Calendario ---------- */
 const tipoEj = id => state.ejercicio.tipos.find(t=>t.id===id) || {nombre:"Actividad", color:"#858B9B", min:30};
@@ -950,7 +1031,7 @@ function dibujarRed(){
   cv.width = r.width*dpr; cv.height = r.height*dpr;
   const ctx = cv.getContext("2d"); ctx.scale(dpr,dpr);
   const W = r.width, H = r.height, css = getComputedStyle(document.documentElement);
-  const colK = {foco:css.getPropertyValue("--accent").trim(), card:css.getPropertyValue("--lilac").trim(), ejer:"#3BA4E8", hab:css.getPropertyValue("--flame").trim(), sub:css.getPropertyValue("--ok").trim(), tema:css.getPropertyValue("--ok").trim(), trab:css.getPropertyValue("--accent").trim(), exam:css.getPropertyValue("--accent").trim()};
+  const colK = {animo:"#5DBB63", foco:css.getPropertyValue("--accent").trim(), card:css.getPropertyValue("--lilac").trim(), ejer:"#3BA4E8", hab:css.getPropertyValue("--flame").trim(), sub:css.getPropertyValue("--ok").trim(), tema:css.getPropertyValue("--ok").trim(), trab:css.getPropertyValue("--accent").trim(), exam:css.getPropertyValue("--accent").trim()};
   const bgInk = css.getPropertyValue("--hero-ink").trim();
   let seed = 7; const rnd = () => (seed = (seed*16807)%2147483647)/2147483647;
   const ev = state.log.slice(-180);
@@ -1101,7 +1182,8 @@ document.addEventListener("click", ev => {
     case "ver": tipo==="trab" ? verTrabajo(id) : verExamen(id); break;
     case "marcar": {
       const m = state.marcas[id] = state.marcas[id]||[], d = hoy(), r = id+"@"+d;
-      if (m.includes(d)) { m.splice(m.indexOf(d),1); desanotar("hab", r); } else { m.push(d); anotar("hab", r); }
+      if (m.includes(d)) { m.splice(m.indexOf(d),1); desanotar("hab", r); } else { m.push(d); anotar("hab", r);
+        if (state.habitos.length>1 && state.habitos.every(hb=>(state.marcas[hb.id]||[]).includes(d))){ confeti(); toast("Todos los hábitos de hoy hechos", "1% mejor que ayer."); } }
       commit(); break; }
     case "sub": {
       const o = (tipo==="trab"?state.trabajos:state.examenes).find(x=>x.id===id);
@@ -1111,7 +1193,7 @@ document.addEventListener("click", ev => {
     case "hecho": {
       const o = (tipo==="trab"?state.trabajos:state.examenes).find(x=>x.id===id);
       o.hecho = !o.hecho; o.hecho ? anotar(tipo,o.id) : desanotar(tipo,o.id);
-      if (o.hecho) toast(tipo==="trab"?"Trabajo entregado":"Examen hecho", MENSAJES_LUIS[Math.floor(Math.random()*MENSAJES_LUIS.length)]);
+      if (o.hecho){ confeti(); toast(tipo==="trab"?"Trabajo entregado":"Examen hecho", MENSAJES_LUIS[Math.floor(Math.random()*MENSAJES_LUIS.length)]); }
       commit();
       tipo==="trab"?verTrabajo(id):verExamen(id); break; }
     case "color": document.getElementById("f-color").value = el.dataset.c;
@@ -1134,6 +1216,8 @@ document.addEventListener("click", ev => {
       document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
       toast("Copia descargada", "Guárdala en Archivos o iCloud Drive."); break; }
     case "uniVista": ui.uniVista = el.dataset.v; render(); break;
+    case "animo": { const d = hoy(), nuevo = !state.animo[d]; state.animo[d] = {v:+el.dataset.v}; if (nuevo) anotar("animo", "animo@"+d);
+      commit(); if (nuevo) toast("Apuntado", +el.dataset.v<=2 ? "Los días malos también cuentan. Mañana será otro día." : "Gracias por contármelo."); break; }
     case "preset": { const sel = document.getElementById("f-pomo-asig"); if (sel) ui.pomoAsig = sel.value; ui.pomoPreset = id; render(); break; }
     case "pomoStart": pomoStart(); break;
     case "pomoPausa": { const a = state.estudio.activo; if (a.pausa!=null){ a.fin = Date.now()+a.pausa; a.pausa = null; } else { a.pausa = a.fin-Date.now(); } commit(); break; }
@@ -1250,6 +1334,7 @@ function render(){
 addEventListener("resize", () => { if (ui.tab==="prog") dibujarRed(); });
 render();
 conectar();
+if (WEB && "serviceWorker" in navigator) { try { navigator.serviceWorker.register("sw.js"); } catch {} }
 </script>
 
 </body>

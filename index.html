@@ -289,6 +289,44 @@ details summary::-webkit-details-marker{display:none}
 .insight span{font-size:14px;color:var(--ink-2)}
 #confeti{position:fixed;inset:0;pointer-events:none;z-index:70}
 
+/* Calma */
+.calma-btn{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px;border:0;border-radius:var(--r);width:100%;text-align:left;color:#fff;
+  background:radial-gradient(240px 180px at 100% 0%,rgba(212,242,90,.35),transparent 70%),linear-gradient(135deg,#6C5CE7,#B04BC8 60%,#EE3F7E)}
+.calma-btn b{font-family:var(--f-display);font-size:22px;display:block}
+.calma-btn span{font-size:13px;opacity:.9}
+.calma-btn i{font-style:normal;font-size:26px;font-weight:300}
+#calma{position:fixed;inset:0;z-index:50;background:var(--bg);overflow-y:auto;overscroll-behavior:contain;
+  padding:calc(14px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+#calma .wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.c-top{display:flex;align-items:center;gap:10px}
+.c-top h1{font-size:28px;margin:0}
+.c-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.c-tile{border:0;border-radius:22px;padding:16px 14px;min-height:150px;display:flex;flex-direction:column;justify-content:space-between;gap:10px;text-align:left;color:#fff;min-width:0}
+.c-tile b{font-family:var(--f-display);font-size:18px;line-height:1.15}
+.c-tile span{font-size:12.5px;opacity:.88;line-height:1.3}
+.c-tile svg{width:34px;height:34px}
+.bubs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;touch-action:none;user-select:none;-webkit-user-select:none}
+.bub{aspect-ratio:1;border-radius:50%;border:0;padding:0;max-width:100%;
+  background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.95) 0 9%,rgba(255,255,255,.35) 10% 22%,transparent 40%),radial-gradient(circle at 50% 55%,color-mix(in srgb,var(--lilac) 30%,transparent),color-mix(in srgb,var(--accent) 22%,transparent) 70%,color-mix(in srgb,var(--accent) 40%,transparent));
+  box-shadow:inset 0 -4px 8px rgba(120,40,120,.18),0 2px 6px rgba(120,40,120,.12);transition:transform .12s}
+.bub.pop{transform:scale(.82);background:radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--line) 70%,transparent),transparent 72%);box-shadow:inset 0 2px 4px rgba(0,0,0,.08)}
+.glass{position:relative;border-radius:24px;overflow:hidden;height:min(64vh,560px);touch-action:none;box-shadow:var(--shadow)}
+.glass canvas{position:absolute;inset:0;width:100%;height:100%}
+.breath{display:flex;flex-direction:column;align-items:center;gap:18px;padding:10px 0}
+.b-stage{position:relative;width:min(300px,78vw);aspect-ratio:1;display:grid;place-items:center;max-width:100%}
+.b-halo{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--lilac) 28%,transparent),transparent 70%)}
+.b-circle{width:100%;height:100%;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff6,transparent 45%),linear-gradient(135deg,var(--lilac),var(--accent));transform:scale(.55);box-shadow:0 20px 60px -20px var(--accent)}
+.b-txt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;pointer-events:none}
+.b-txt b{font-family:var(--f-display);font-size:30px}
+.b-txt span{font-size:44px;font-weight:800;font-family:var(--f-display);font-variant-numeric:tabular-nums;line-height:1}
+.snd{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.snd:first-child{border-top:0}
+.snd .tg{width:44px;height:44px;border-radius:14px;border:0;background:var(--surface-2);display:grid;place-items:center;color:var(--ink-2)}
+.snd .tg.on{background:var(--lilac);color:#fff}
+.snd .tg svg{width:22px;height:22px}
+.snd label{font-weight:600;font-size:15px;display:flex;justify-content:space-between}
+.snd input[type=range]{width:100%;accent-color:var(--lilac)}
+
 /* Barra inferior */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;pointer-events:none;
   padding:0 max(12px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
@@ -649,7 +687,9 @@ function vistaHoy(){
     ${semana.length||planes.length ? `<div class="list">${[...semana.map(p=>({f:p.o.fecha, h:itemPendiente(p)})), ...planes.map(v=>({f:v.fecha, h:itemEvento(v)}))].sort((a,b)=>a.f.localeCompare(b.f)).map(x=>x.h).join("")}</div>` : `<div class="empty">Nada en los próximos 7 días.</div>`}</section>`;
   const am = state.animo[hoy()];
   h += `<section class="card"><div class="sec-head"><h2>¿Cómo estás hoy?</h2>${am?`<span class="muted small">Puedes cambiarlo</span>`:""}</div>
-    <div class="mood" role="radiogroup" aria-label="Ánimo de hoy">${ANIMOS.map(x=>`<button style="--mc:${x.c}" class="${am&&am.v===x.v?"on":""}" data-a="animo" data-v="${x.v}" role="radio" aria-checked="${!!(am&&am.v===x.v)}">${cara(x.v)}${x.n}</button>`).join("")}</div></section>`;
+    <div class="mood" role="radiogroup" aria-label="Ánimo de hoy">${ANIMOS.map(x=>`<button style="--mc:${x.c}" class="${am&&am.v===x.v?"on":""}" data-a="animo" data-v="${x.v}" role="radio" aria-checked="${!!(am&&am.v===x.v)}">${cara(x.v)}${x.n}</button>`).join("")}</div>
+    ${am && am.v<=2 ? `<button class="btn" data-a="calma" style="align-self:flex-start">Tómate un rato en Calma</button>` : ""}</section>`;
+  h += `<button class="calma-btn" data-a="calma"><span><b>Calma</b><span>Burbujas, cristal, respiración y sonidos para dormir</span></span><i aria-hidden="true">→</i></button>`;
   const act = state.estudio.activo;
   if (act) h += `<button class="pomo-mini" data-a="irEstudio"><span><span class="muted small" style="font-weight:700;text-transform:uppercase;letter-spacing:.05em">${act.fase==="foco"?(act.pausa!=null?"En pausa":"Estudiando"):"Descanso"}</span><br><span style="font-weight:600">${esc(asig(act.asig).nombre)}</span></span><b id="pomo-mini-t">${mmss(restante())}</b></button>`;
   const nDue = tarjetasHoy().length;
@@ -914,6 +954,237 @@ function vistaAnimo(){
       <p class="muted small" style="margin:0">Ya lo sabes de clase: correlación no implica causalidad. Pero da pistas.</p>`;
   } else h += `<p class="muted small" style="margin:0">Cuando tengas más días registrados, aquí verás qué cosas se relacionan con que estés mejor: ejercicio, estudio, tus hábitos…</p>`;
   return h + `</section>`;
+}
+
+
+/* ---------- Calma: juegos y sonidos para relajarse ---------- */
+const CALMA_JUEGOS = [
+  {id:"burbujas", n:"Papel de burbujas", d:"Explota burbujas sin fin", g:"linear-gradient(135deg,#F06AA0,#B04BC8)",
+   i:'<svg viewBox="0 0 34 34" fill="none" stroke="#fff" stroke-width="2"><circle cx="10" cy="10" r="6"/><circle cx="24" cy="10" r="6"/><circle cx="10" cy="24" r="6"/><circle cx="24" cy="24" r="6" stroke-dasharray="3 3"/></svg>'},
+  {id:"cristal", n:"Limpiar el cristal", d:"Desempaña la ventana y descubre el paisaje", g:"linear-gradient(135deg,#3BA4E8,#6C5CE7)",
+   i:'<svg viewBox="0 0 34 34" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="5" y="5" width="24" height="24" rx="4"/><path d="M9 22c4-6 8 2 12-4s4-4 4-4"/></svg>'},
+  {id:"respira", n:"Respiración guiada", d:"Para dormir o calmar los nervios", g:"linear-gradient(135deg,#17A57E,#3BA4E8)",
+   i:'<svg viewBox="0 0 34 34" fill="none" stroke="#fff" stroke-width="2"><circle cx="17" cy="17" r="5"/><circle cx="17" cy="17" r="10" opacity=".6"/><circle cx="17" cy="17" r="15" opacity=".3"/></svg>'},
+  {id:"sonidos", n:"Sonidos para dormir", d:"Lluvia, olas, fuego… con temporizador", g:"linear-gradient(135deg,#2B1631,#6C5CE7)",
+   i:'<svg viewBox="0 0 34 34" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M22 6a11 11 0 1 0 6 18A9 9 0 0 1 22 6z"/></svg>'}
+];
+let calmaVista = null, calmaLimpieza = [];
+function abrirCalma(vista){
+  calmaLimpieza.forEach(f=>{ try{f();}catch{} }); calmaLimpieza = [];
+  calmaVista = vista;
+  let el = document.getElementById("calma");
+  if (!vista){ if (el) el.remove(); document.body.style.overflow = ""; return; }
+  if (!el){ el = document.createElement("div"); el.id = "calma"; el.setAttribute("role","dialog"); el.setAttribute("aria-modal","true"); document.body.appendChild(el); }
+  document.body.style.overflow = "hidden";
+  const atras = vista==="menu" ? "cerrar" : "menu";
+  const titulo = vista==="menu" ? "Calma" : CALMA_JUEGOS.find(j=>j.id===vista).n;
+  el.innerHTML = `<div class="wrap"><div class="c-top"><button class="iconbtn" data-calma="${atras}" aria-label="Volver">${ICON.prev}</button><h1>${esc(titulo)}</h1></div><div id="c-body"></div></div>`;
+  el.querySelector("[data-calma]").onclick = () => abrirCalma(atras==="cerrar" ? null : "menu");
+  el.scrollTop = 0;
+  ({menu:calmaMenu, burbujas:juegoBurbujas, cristal:juegoCristal, respira:juegoRespira, sonidos:juegoSonidos})[vista](document.getElementById("c-body"));
+}
+function calmaMenu(b){
+  b.innerHTML = `<p class="muted" style="margin:0">Un rato para ti. Sin puntos, sin rachas, sin prisa.</p>
+    <div class="c-grid">${CALMA_JUEGOS.map(j=>`<button class="c-tile" style="background:${j.g}" data-j="${j.id}">${j.i}<span><b>${esc(j.n)}</b><br>${esc(j.d)}</span></button>`).join("")}</div>
+    ${sonido.sonando?`<p class="muted small" style="margin:0">Los sonidos siguen sonando. Entra en "Sonidos para dormir" para pararlos.</p>`:""}`;
+  b.querySelectorAll("[data-j]").forEach(x=>x.onclick=()=>{ desbloquearAudio(); abrirCalma(x.dataset.j); });
+}
+// Generadores de sonido sencillos con Web Audio
+function ruidoBuffer(seg){ const ctx = audioCtx, n = ctx.sampleRate*seg, buf = ctx.createBuffer(1,n,ctx.sampleRate), d = buf.getChannelData(0); for (let i=0;i<n;i++) d[i] = Math.random()*2-1; return buf; }
+function popSonido(){ try { const c = audioCtx; if (!c) return; const t = c.currentTime, src = c.createBufferSource(); src.buffer = ruidoBuffer(.08);
+  const f = c.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = 1400+Math.random()*900; f.Q.value = 1.4;
+  const g = c.createGain(); g.gain.setValueAtTime(.9,t); g.gain.exponentialRampToValueAtTime(.001,t+.07);
+  src.connect(f); f.connect(g); g.connect(c.destination); src.start(t); src.stop(t+.08); } catch {} }
+
+function juegoBurbujas(b){
+  let total = 0;
+  b.innerHTML = `<div class="sec-head"><span class="muted">Toca o arrastra el dedo</span><span class="muted small" id="b-count">0 explotadas</span></div><div class="bubs" id="bubs"></div>`;
+  const grid = b.querySelector("#bubs");
+  const llenar = () => { grid.innerHTML = Array.from({length:54},()=>`<button class="bub" aria-label="Burbuja"></button>`).join(""); };
+  llenar();
+  const pop = el => { if (!el || !el.classList.contains("bub") || el.classList.contains("pop")) return;
+    el.classList.add("pop"); total++; popSonido(); b.querySelector("#b-count").textContent = `${total} explotadas`;
+    if (!grid.querySelector(".bub:not(.pop)")) setTimeout(()=>{ confeti(); llenar(); }, 350); };
+  let pulsando = false;
+  grid.addEventListener("pointerdown", e=>{ pulsando = true; desbloquearAudio(); pop(e.target); });
+  grid.addEventListener("pointermove", e=>{ if (pulsando) pop(document.elementFromPoint(e.clientX, e.clientY)); });
+  const fin = () => pulsando = false; window.addEventListener("pointerup", fin); calmaLimpieza.push(()=>window.removeEventListener("pointerup", fin));
+}
+
+const PAISAJES = [
+  (c,W,H)=>{ const g = c.createLinearGradient(0,0,0,H); g.addColorStop(0,"#2B1655"); g.addColorStop(.55,"#E85D9E"); g.addColorStop(1,"#FFB36B"); c.fillStyle=g; c.fillRect(0,0,W,H);
+    c.fillStyle="#FFE3A3"; c.beginPath(); c.arc(W*.62,H*.6,W*.12,0,7); c.fill();
+    [["#7A2E6E",.68],["#4E1F57",.78],["#2A1236",.88]].forEach(([col,y],k)=>{ c.fillStyle=col; c.beginPath(); c.moveTo(0,H); for(let x=0;x<=W;x+=W/40) c.lineTo(x, H*y + Math.sin(x/W*6+k*2)*H*.05 + Math.sin(x/W*15+k)*H*.015); c.lineTo(W,H); c.fill(); }); },
+  (c,W,H)=>{ const g = c.createLinearGradient(0,0,0,H); g.addColorStop(0,"#0B1030"); g.addColorStop(1,"#2E3C7A"); c.fillStyle=g; c.fillRect(0,0,W,H);
+    let s=11; const r=()=> (s=(s*16807)%2147483647)/2147483647; c.fillStyle="#fff"; for(let i=0;i<140;i++){ c.globalAlpha=.3+r()*.7; c.fillRect(r()*W, r()*H*.7, 1.6, 1.6); } c.globalAlpha=1;
+    c.fillStyle="#FFF4D6"; c.beginPath(); c.arc(W*.75,H*.22,W*.08,0,7); c.fill(); c.fillStyle="#0B1030"; c.beginPath(); c.arc(W*.78,H*.2,W*.075,0,7); c.fill();
+    c.fillStyle="#141A3D"; c.beginPath(); c.moveTo(0,H); for(let x=0;x<=W;x+=W/40) c.lineTo(x, H*.8+Math.sin(x/W*5)*H*.04); c.lineTo(W,H); c.fill(); },
+  (c,W,H)=>{ const g = c.createLinearGradient(0,0,0,H*.55); g.addColorStop(0,"#9ED8F5"); g.addColorStop(1,"#FFE9D6"); c.fillStyle=g; c.fillRect(0,0,W,H);
+    c.fillStyle="#FFF6E0"; c.beginPath(); c.arc(W*.3,H*.42,W*.09,0,7); c.fill();
+    const m = c.createLinearGradient(0,H*.5,0,H); m.addColorStop(0,"#5FB7D9"); m.addColorStop(1,"#1F6E99"); c.fillStyle=m; c.fillRect(0,H*.5,W,H*.5);
+    c.strokeStyle="rgba(255,255,255,.45)"; c.lineWidth=2; for(let y=H*.55;y<H;y+=H*.05){ c.beginPath(); for(let x=0;x<=W;x+=8) c.lineTo(x, y+Math.sin(x/30+y)*3); c.stroke(); } },
+  (c,W,H)=>{ const g = c.createLinearGradient(0,0,0,H); g.addColorStop(0,"#C9F0E1"); g.addColorStop(1,"#5AA88A"); c.fillStyle=g; c.fillRect(0,0,W,H);
+    let s=5; const r=()=> (s=(s*16807)%2147483647)/2147483647;
+    [["#3F8A6F",.55,.18],["#2A6B54",.7,.22],["#1B4A3A",.85,.26]].forEach(([col,base,h])=>{ c.fillStyle=col; for(let i=0;i<14;i++){ const x=r()*W, hh=H*h*(0.7+r()*.6), w=hh*.35; c.beginPath(); c.moveTo(x,H*base-hh); c.lineTo(x-w,H*base+H*.06); c.lineTo(x+w,H*base+H*.06); c.fill(); } c.fillRect(0,H*base+H*.05,W,H); }); }
+];
+function juegoCristal(b){
+  b.innerHTML = `<p class="muted" style="margin:0" id="g-msg">Pasa el dedo para limpiar el vaho.</p><div class="glass" id="glass"><canvas id="g-scene"></canvas><canvas id="g-fog"></canvas></div>`;
+  const box = b.querySelector("#glass"), sc = b.querySelector("#g-scene"), fg = b.querySelector("#g-fog");
+  const dpr = window.devicePixelRatio||1, W = box.clientWidth, H = box.clientHeight;
+  [sc,fg].forEach(cv=>{ cv.width = W*dpr; cv.height = H*dpr; cv.getContext("2d").scale(dpr,dpr); });
+  const cs = sc.getContext("2d"), cf = fg.getContext("2d");
+  let k = Math.floor(Math.random()*PAISAJES.length), listo = false;
+  const empañar = () => {
+    PAISAJES[k%PAISAJES.length](cs,W,H); k++;
+    cf.globalCompositeOperation = "source-over"; cf.clearRect(0,0,W,H);
+    cf.fillStyle = "rgba(226,229,238,.94)"; cf.fillRect(0,0,W,H);
+    for (let i=0;i<900;i++){ const x=Math.random()*W, y=Math.random()*H, r=.6+Math.random()*2.2;
+      cf.fillStyle = `rgba(255,255,255,${.25+Math.random()*.4})`; cf.beginPath(); cf.arc(x,y,r,0,7); cf.fill(); }
+    listo = false; b.querySelector("#g-msg").textContent = "Pasa el dedo para limpiar el vaho.";
+  };
+  empañar();
+  // sonido de frotar
+  let roce = null;
+  try { const c = audioCtx; if (c){ const src = c.createBufferSource(); src.buffer = ruidoBuffer(2); src.loop = true;
+    const f = c.createBiquadFilter(); f.type="bandpass"; f.frequency.value=2200; f.Q.value=.7; const g = c.createGain(); g.gain.value = 0;
+    src.connect(f); f.connect(g); g.connect(c.destination); src.start(); roce = g; calmaLimpieza.push(()=>{ try{src.stop();}catch{} }); } } catch {}
+  let ult = null;
+  const limpiar = (x,y) => {
+    const g = cf.createRadialGradient(x,y,0,x,y,42); g.addColorStop(0,"rgba(0,0,0,1)"); g.addColorStop(.6,"rgba(0,0,0,.85)"); g.addColorStop(1,"rgba(0,0,0,0)");
+    cf.globalCompositeOperation = "destination-out"; cf.fillStyle = g;
+    if (ult){ const dx=x-ult[0], dy=y-ult[1], d=Math.hypot(dx,dy), n=Math.max(1,Math.ceil(d/10));
+      for (let i=1;i<=n;i++){ cf.beginPath(); cf.arc(ult[0]+dx*i/n, ult[1]+dy*i/n, 42, 0, 7); cf.fill(); }
+      if (roce && audioCtx) roce.gain.setTargetAtTime(Math.min(d/90,.18), audioCtx.currentTime, .03); }
+    else { cf.beginPath(); cf.arc(x,y,42,0,7); cf.fill(); }
+    ult = [x,y];
+  };
+  const pos = e => { const r = fg.getBoundingClientRect(); return [e.clientX-r.left, e.clientY-r.top]; };
+  let activo = false;
+  fg.addEventListener("pointerdown", e=>{ activo = true; ult = null; fg.setPointerCapture(e.pointerId); limpiar(...pos(e)); });
+  fg.addEventListener("pointermove", e=>{ if (activo) limpiar(...pos(e)); });
+  const soltar = () => { activo = false; ult = null; if (roce && audioCtx) roce.gain.setTargetAtTime(0, audioCtx.currentTime, .05); };
+  fg.addEventListener("pointerup", soltar); fg.addEventListener("pointercancel", soltar);
+  const comprobar = setInterval(()=>{
+    if (listo) return;
+    const w = Math.max(1,Math.floor(fg.width/12)), h = Math.max(1,Math.floor(fg.height/12));
+    const tmp = document.createElement("canvas"); tmp.width = w; tmp.height = h; tmp.getContext("2d").drawImage(fg,0,0,w,h);
+    const d = tmp.getContext("2d").getImageData(0,0,w,h).data; let limpio = 0; for (let i=3;i<d.length;i+=4) if (d[i]<60) limpio++;
+    if (limpio/(w*h) > .9){ listo = true; b.querySelector("#g-msg").textContent = "Qué vistas. Ahora se vuelve a empañar…"; setTimeout(()=>{ if (calmaVista==="cristal") empañar(); }, 2600); }
+  }, 500);
+  calmaLimpieza.push(()=>clearInterval(comprobar));
+}
+
+const RITMOS = [
+  {id:"478", n:"4-7-8 · Para dormir", f:[["Inspira",4,"in"],["Mantén",7,"hold"],["Espira",8,"out"]], tip:"Haz 4 ciclos en la cama, con la luz apagada."},
+  {id:"caja", n:"Caja · Antes de un examen", f:[["Inspira",4,"in"],["Mantén",4,"hold"],["Espira",4,"out"],["Mantén",4,"rest"]], tip:"Baja los nervios en 2 minutos."},
+  {id:"55", n:"5-5 · Calma", f:[["Inspira",5,"in"],["Espira",5,"out"]], tip:"Respira por la nariz, despacio, sin forzar."}
+];
+let ritmoSel = "478";
+function juegoRespira(b){
+  const pinta = () => {
+    const r = RITMOS.find(x=>x.id===ritmoSel);
+    b.innerHTML = `<div class="chips" style="justify-content:center;flex-wrap:wrap">${RITMOS.map(x=>`<button class="chip ${x.id===ritmoSel?"on":""}" data-r="${x.id}">${esc(x.n)}</button>`).join("")}</div>
+      <div class="breath"><div class="b-stage"><div class="b-halo"></div><div class="b-circle" id="b-c"></div><div class="b-txt"><b id="b-f">Preparada</b><span id="b-n"></span></div></div>
+      <p class="muted small" style="margin:0;text-align:center" id="b-tip">${esc(r.tip)}</p>
+      <div class="actions" style="justify-content:center"><button class="btn primary big" id="b-go" style="padding:14px 26px;font-size:16px;border-radius:16px">Empezar</button></div></div>`;
+    b.querySelectorAll("[data-r]").forEach(x=>x.onclick=()=>{ parar(); ritmoSel = x.dataset.r; pinta(); });
+    b.querySelector("#b-go").onclick = () => corriendo ? parar(true) : empezar();
+  };
+  let corriendo = false, raf = null, t0 = 0, ciclos = 0, faseAnt = -1;
+  const tono = (fr) => { try { const c = audioCtx; if (!c) return; const t = c.currentTime, o = c.createOscillator(), g = c.createGain();
+    o.type="sine"; o.frequency.value = fr; g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.08,t+.15); g.gain.exponentialRampToValueAtTime(.0001,t+1.2);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+1.3); } catch {} };
+  const empezar = () => { desbloquearAudio(); corriendo = true; t0 = performance.now(); ciclos = 0; faseAnt = -1; b.querySelector("#b-go").textContent = "Parar"; raf = requestAnimationFrame(paso); };
+  const parar = (pintarFin) => { corriendo = false; cancelAnimationFrame(raf); if (pintarFin){ const c = b.querySelector("#b-c"); if (c) c.style.transform = "scale(.55)";
+    b.querySelector("#b-f").textContent = ciclos ? "Muy bien" : "Preparada"; b.querySelector("#b-n").textContent = ""; b.querySelector("#b-go").textContent = "Empezar";
+    if (ciclos) b.querySelector("#b-tip").textContent = `${ciclos} ${ciclos===1?"ciclo completado":"ciclos completados"}.`; } };
+  const paso = (now) => {
+    const r = RITMOS.find(x=>x.id===ritmoSel), tot = r.f.reduce((t,f)=>t+f[1],0);
+    const el = (now - t0)/1000, enCiclo = el % tot; ciclos = Math.floor(el/tot);
+    let acc = 0, i = 0; while (enCiclo >= acc + r.f[i][1]) { acc += r.f[i][1]; i++; }
+    const [nom, dur, tipo] = r.f[i], p = (enCiclo-acc)/dur, ease = .5 - Math.cos(Math.PI*p)/2;
+    const esc = tipo==="in" ? .55 + .45*ease : tipo==="out" ? 1 - .45*ease : tipo==="hold" ? 1 : .55;
+    const c = b.querySelector("#b-c"); if (!c) return; c.style.transform = `scale(${esc})`;
+    b.querySelector("#b-f").textContent = nom; b.querySelector("#b-n").textContent = Math.ceil(dur - (enCiclo-acc));
+    if (i !== faseAnt){ faseAnt = i; tono(tipo==="in" ? 396 : tipo==="out" ? 264 : 330); }
+    if (corriendo) raf = requestAnimationFrame(paso);
+  };
+  pinta(); calmaLimpieza.push(()=>parar(false));
+}
+
+// Sonidos para dormir: se generan como un archivo de audio en bucle (así siguen sonando con la pantalla apagada)
+const SONIDOS = [{id:"lluvia",n:"Lluvia"},{id:"olas",n:"Olas del mar"},{id:"fuego",n:"Chimenea"},{id:"grillos",n:"Noche de verano"},{id:"rosa",n:"Ruido rosa"}];
+const sonido = {vol:{lluvia:.7}, on:{lluvia:true}, audio:null, sonando:false, fin:null, timer:null, minutos:30};
+function generarMezcla(){
+  const sr = 22050, seg = 24, n = sr*seg, out = new Float32Array(n);
+  const rosa = () => { const a = new Float32Array(n); let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+    for (let i=0;i<n;i++){ const w = Math.random()*2-1; b0=.99886*b0+w*.0555179; b1=.99332*b1+w*.0750759; b2=.969*b2+w*.153852; b3=.8665*b3+w*.3104856; b4=.55*b4+w*.5329522; b5=-.7616*b5-w*.016898;
+      a[i]=(b0+b1+b2+b3+b4+b5+b6+w*.5362)*.11; b6=w*.115926; } return a; };
+  const marron = () => { const a = new Float32Array(n); let l = 0; for (let i=0;i<n;i++){ l = (l + .02*(Math.random()*2-1))/1.02; a[i] = l*3.5; } return a; };
+  const gen = {
+    lluvia: () => { const p = rosa(), a = new Float32Array(n); let prev = 0, hp = 0;
+      for (let i=0;i<n;i++){ hp = .85*(hp + p[i]-prev); prev = p[i]; a[i] = hp*.9 + p[i]*.25; }
+      for (let k=0;k<seg*25;k++){ const s0 = Math.floor(Math.random()*n), amp = .05+Math.random()*.2, len = 200; for (let j=0;j<len && s0+j<n;j++) a[s0+j] += (Math.random()*2-1)*amp*Math.exp(-j/30); }
+      return a; },
+    olas: () => { const m = marron(), p = rosa(), a = new Float32Array(n);
+      for (let i=0;i<n;i++){ const t = i/sr, env = Math.pow(.5+.5*Math.sin(2*Math.PI*t/8 - Math.PI/2), 2.2); a[i] = (m[i]*.7 + p[i]*.5)*(.15+env); } return a; },
+    fuego: () => { const m = marron(), a = new Float32Array(n); let lp = 0;
+      for (let i=0;i<n;i++){ lp += .08*(m[i]-lp); a[i] = lp*1.6; }
+      for (let k=0;k<seg*9;k++){ const s0 = Math.floor(Math.random()*n), amp = .15+Math.random()*.6, len = 60+Math.random()*200; for (let j=0;j<len && s0+j<n;j++) a[s0+j] += (Math.random()*2-1)*amp*Math.exp(-j/12); }
+      return a; },
+    grillos: () => { const a = new Float32Array(n), m = marron();
+      for (let i=0;i<n;i++) a[i] = m[i]*.12;
+      [[4400,.62,0],[4700,.85,.3],[4150,1.1,.55]].forEach(([fr,per,off])=>{ for (let t=off;t<seg;t+=per){ for (let p=0;p<3;p++){ const s0 = Math.floor((t+p*.045)*sr), len = Math.floor(.03*sr);
+        for (let j=0;j<len && s0+j<n;j++){ const e = Math.sin(Math.PI*j/len); a[s0+j] += Math.sin(2*Math.PI*fr*j/sr)*.07*e; } } } });
+      return a; },
+    rosa: () => rosa()
+  };
+  let alguno = false;
+  SONIDOS.forEach(x=>{ if (!sonido.on[x.id]) return; alguno = true; const a = gen[x.id](), v = sonido.vol[x.id] ?? .7; for (let i=0;i<n;i++) out[i] += a[i]*v; });
+  if (!alguno) return null;
+  // bucle sin saltos: funde el final con el principio
+  const fx = Math.floor(sr*.6); for (let j=0;j<fx;j++){ const k = j/fx; out[j] = out[j]*k + out[n-fx+j]*(1-k); }
+  const fin = out.subarray(0, n-fx); let pico = 0; for (let i=0;i<fin.length;i++) pico = Math.max(pico, Math.abs(fin[i]));
+  const g = pico ? .85/pico : 1, buf = new ArrayBuffer(44 + fin.length*2), dv = new DataView(buf);
+  const str = (o,s) => [...s].forEach((ch,i)=>dv.setUint8(o+i, ch.charCodeAt(0)));
+  str(0,"RIFF"); dv.setUint32(4,36+fin.length*2,true); str(8,"WAVE"); str(12,"fmt "); dv.setUint32(16,16,true); dv.setUint16(20,1,true); dv.setUint16(22,1,true);
+  dv.setUint32(24,sr,true); dv.setUint32(28,sr*2,true); dv.setUint16(32,2,true); dv.setUint16(34,16,true); str(36,"data"); dv.setUint32(40,fin.length*2,true);
+  for (let i=0;i<fin.length;i++) dv.setInt16(44+i*2, Math.max(-1,Math.min(1,fin[i]*g))*32767, true);
+  return URL.createObjectURL(new Blob([buf],{type:"audio/wav"}));
+}
+function reproducir(){
+  if (!sonido.audio){ sonido.audio = new Audio(); sonido.audio.loop = true; sonido.audio.setAttribute("playsinline",""); }
+  const url = generarMezcla();
+  if (!url){ pararSonido(); return; }
+  const viejo = sonido.audio.src; sonido.audio.src = url; if (viejo && viejo.startsWith("blob:")) URL.revokeObjectURL(viejo);
+  sonido.audio.play().then(()=>{ sonido.sonando = true; pintarSonidos(); }).catch(()=>{ sonido.sonando = false; pintarSonidos(); });
+  sonido.sonando = true;
+  programarFin();
+}
+function programarFin(){
+  clearTimeout(sonido.timer); sonido.fin = null;
+  if (sonido.minutos){ sonido.fin = Date.now() + sonido.minutos*60000; sonido.timer = setTimeout(pararSonido, sonido.minutos*60000); }
+}
+function pararSonido(){ if (sonido.audio) sonido.audio.pause(); sonido.sonando = false; clearTimeout(sonido.timer); sonido.fin = null; pintarSonidos(); }
+document.addEventListener("visibilitychange", () => { if (!document.hidden && sonido.fin && Date.now() > sonido.fin) pararSonido(); });
+let pintarSonidos = () => {};
+function juegoSonidos(b){
+  pintarSonidos = () => {
+    if (calmaVista !== "sonidos") return;
+    const rest = sonido.fin ? Math.max(0, Math.ceil((sonido.fin-Date.now())/60000)) : null;
+    b.innerHTML = `<section class="card"><div class="sec-head"><h2>Mezcla tus sonidos</h2><span class="muted small">${sonido.sonando?(rest!=null?`Se apaga en ${rest} min`:"Sonando"):"Parado"}</span></div>
+      <div>${SONIDOS.map(x=>`<div class="snd"><button class="tg ${sonido.on[x.id]?"on":""}" data-s="${x.id}" aria-pressed="${!!sonido.on[x.id]}" aria-label="${esc(x.n)}">${sonido.on[x.id]?'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>':'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 9h4l5-4v14l-5-4H4z"/></svg>'}</button>
+        <div><label for="v-${x.id}"><span>${esc(x.n)}</span></label><input type="range" id="v-${x.id}" min="0.05" max="1" step="0.05" value="${sonido.vol[x.id] ?? .7}" data-v="${x.id}" ${sonido.on[x.id]?"":"disabled"}></div></div>`).join("")}</div>
+      <div class="field"><label>Apagar solos</label><div class="presets" style="justify-content:flex-start">${[[15,"15 min"],[30,"30 min"],[60,"1 hora"],[0,"Nunca"]].map(([m,l])=>`<button class="chip ${sonido.minutos===m?"on":""}" data-m="${m}">${l}</button>`).join("")}</div></div>
+      <div class="actions"><button class="btn primary" id="s-go" style="padding:14px 26px;font-size:16px;border-radius:16px">${sonido.sonando?"Parar":"Reproducir"}</button></div>
+      <p class="muted small" style="margin:0">Siguen sonando con la pantalla bloqueada. Con el móvil bloqueado, el temporizador puede no apagarlos justo a tiempo; se apagan en cuanto vuelvas a abrir la app.</p></section>`;
+    b.querySelectorAll("[data-s]").forEach(x=>x.onclick=()=>{ const id = x.dataset.s; sonido.on[id] = !sonido.on[id]; if (sonido.vol[id]==null) sonido.vol[id] = .7; if (sonido.sonando) reproducir(); else pintarSonidos(); });
+    b.querySelectorAll("[data-v]").forEach(x=>x.onchange=()=>{ sonido.vol[x.dataset.v] = +x.value; if (sonido.sonando) reproducir(); });
+    b.querySelectorAll("[data-m]").forEach(x=>x.onclick=()=>{ sonido.minutos = +x.dataset.m; if (sonido.sonando) programarFin(); pintarSonidos(); });
+    b.querySelector("#s-go").onclick = () => sonido.sonando ? pararSonido() : reproducir();
+  };
+  pintarSonidos();
+  const reloj = setInterval(()=>{ if (sonido.fin && Date.now()>sonido.fin) pararSonido(); }, 20000); calmaLimpieza.push(()=>clearInterval(reloj));
 }
 
 /* ---------- Calendario ---------- */
@@ -1216,6 +1487,7 @@ document.addEventListener("click", ev => {
       document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
       toast("Copia descargada", "Guárdala en Archivos o iCloud Drive."); break; }
     case "uniVista": ui.uniVista = el.dataset.v; render(); break;
+    case "calma": desbloquearAudio(); abrirCalma("menu"); break;
     case "animo": { const d = hoy(), nuevo = !state.animo[d]; state.animo[d] = {v:+el.dataset.v}; if (nuevo) anotar("animo", "animo@"+d);
       commit(); if (nuevo) toast("Apuntado", +el.dataset.v<=2 ? "Los días malos también cuentan. Mañana será otro día." : "Gracias por contármelo."); break; }
     case "preset": { const sel = document.getElementById("f-pomo-asig"); if (sel) ui.pomoAsig = sel.value; ui.pomoPreset = id; render(); break; }
@@ -1315,6 +1587,7 @@ document.addEventListener("change", ev => {
     catch { toast("Ese archivo no es una copia de Sinapsis", "Elige el archivo sinapsis-copia-….json"); } };
   fr.readAsText(ev.target.files[0]);
 });
+document.addEventListener("keydown", e => { if (e.key==="Escape" && calmaVista){ abrirCalma(calmaVista==="menu"?null:"menu"); return; } });
 document.addEventListener("keydown", e => { if (e.key==="Escape" && document.querySelector(".scrim")) { if (ui.sesion){ ui.sesion=null; state.tarjetas.forEach(t=>delete t.fallo); commit(); } cerrar(); } });
 
 /* ---------- Render ---------- */

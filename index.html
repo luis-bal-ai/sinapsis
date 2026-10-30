@@ -7,9 +7,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Sinapsis">
-<meta name="theme-color" content="#ECEEF3" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#11131A" media="(prefers-color-scheme: dark)">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#F8F2F6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#130F15" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="manifest" href="manifest.json">
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}
@@ -261,6 +261,21 @@ details summary::-webkit-details-marker{display:none}
 .rate .r1{background:var(--lilac-soft);color:var(--lilac)}
 .rate .r2{background:var(--ok-soft);color:var(--ok)}
 
+/* Temporizador de estudio */
+.seg.three{grid-template-columns:repeat(3,1fr)}
+.pomo{display:flex;flex-direction:column;align-items:center;gap:16px}
+.ring{position:relative;width:min(250px,72vw);aspect-ratio:1;max-width:100%}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg);display:block}
+.ring .tm{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;padding:0 30px}
+.ring .tm b{font-family:var(--f-display);font-size:56px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.ring .tm span{font-size:13px;color:var(--ink-3);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.ring .tm small{font-size:13px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.presets{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.pomo .actions{justify-content:center}
+.pomo .btn.big{padding:14px 26px;font-size:16px;border-radius:16px}
+.pomo-mini{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-radius:var(--r);background:var(--lilac-soft);border:0;width:100%;text-align:left;color:var(--ink)}
+.pomo-mini b{font-family:var(--f-display);font-size:26px;font-variant-numeric:tabular-nums;color:var(--lilac)}
+
 /* Barra inferior */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;pointer-events:none;
   padding:0 max(12px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
@@ -358,7 +373,8 @@ const NIVELES = [
   {n:"Operaciones concretas", min:500},
   {n:"Operaciones formales", min:1200}
 ];
-const XP = {sub:5, tema:5, trab:25, exam:40, hab:10, ejer:10, card:2};
+const XP = {sub:5, tema:5, trab:25, exam:40, hab:10, ejer:10, card:2, foco:15};
+const PRESETS = [{id:"p25", foco:25, desc:5, n:"Clásico"},{id:"p50", foco:50, desc:10, n:"Largo"},{id:"p15", foco:15, desc:3, n:"Rápido"}];
 const INTERVALOS = [0,1,3,7,14,30,60,120]; // días hasta el siguiente repaso según la caja
 const ICON = {
   check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
@@ -411,7 +427,7 @@ function tiposBase(){ return [
   {id:"x2", nombre:"Gimnasio", color:COLORES[1], min:60},
   {id:"x3", nombre:"Meditación", color:COLORES[3], min:10}
 ]; }
-const inicial = () => ({v:1, ejemplo:false, paleta2:true, asignaturas:ASIGNATURAS.map(([nombre,color])=>({id:uid(), nombre, color})), trabajos:[], examenes:[], habitos:[], marcas:{}, log:[], eventos:[], ejercicio:{tipos:tiposBase(), registros:[]}, tarjetas:[], vistos:[], updatedAt:Date.now()});
+const inicial = () => ({v:1, ejemplo:false, paleta2:true, asignaturas:ASIGNATURAS.map(([nombre,color])=>({id:uid(), nombre, color})), trabajos:[], examenes:[], habitos:[], marcas:{}, log:[], eventos:[], ejercicio:{tipos:tiposBase(), registros:[]}, tarjetas:[], estudio:{sesiones:[], activo:null}, vistos:[], updatedAt:Date.now()});
 // Completa estados guardados con versiones anteriores de la app.
 function completar(st){
   if (!st || st.ejemplo) return inicial();
@@ -420,6 +436,7 @@ function completar(st){
   st.ejercicio.tipos = st.ejercicio.tipos || tiposBase();
   st.ejercicio.registros = st.ejercicio.registros || [];
   st.tarjetas = st.tarjetas || [];
+  st.estudio = st.estudio || {sesiones:[], activo:null};
   if (!st.paleta2){
     const mapa = c => COLORES_ANTES[c] || c;
     [st.asignaturas, st.habitos, st.eventos, st.ejercicio.tipos].forEach(arr => arr.forEach(x => x.color = mapa(x.color)));
@@ -433,7 +450,7 @@ const LS_KEY = "sinapsis-estado-v1";
 let state, ref = null, modo = "local", ultimaEscritura = 0, timerGuardar = null;
 try { const raw = localStorage.getItem(LS_KEY); state = raw ? JSON.parse(raw) : inicial(); } catch { state = inicial(); }
 state = completar(state);
-let ui = {tab:"hoy", asig:"todas", armado:null, mes:new Date(new Date().getFullYear(), new Date().getMonth(), 1), dia:iso(new Date()), semana:lunes(new Date()), editTipos:false, uniVista:"entregas", sesion:null};
+let ui = {tab:"hoy", asig:"todas", armado:null, mes:new Date(new Date().getFullYear(), new Date().getMonth(), 1), dia:iso(new Date()), semana:lunes(new Date()), editTipos:false, uniVista:"entregas", sesion:null, pomoAsig:null, pomoPreset:"p25"};
 try { ui.tab = localStorage.getItem("sinapsis-tab") || "hoy"; } catch {}
 
 function guardarLocal(){ try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch {} }
@@ -525,6 +542,7 @@ const LOGROS = [
   {id:"maslow", who:"Maslow", n:"Autorrealización", d:"Entrega 5 trabajos", ok:()=>state.trabajos.filter(t=>t.hecho).length>=5},
   {id:"bandura", who:"Bandura", n:"Autoeficacia", d:"Haz ejercicio 3 días en una misma semana", ok:()=>{ const s={}; state.ejercicio.registros.forEach(r=>{ const k=iso(lunes(parse(r.fecha))); (s[k]=s[k]||new Set()).add(r.fecha); }); return Object.values(s).some(x=>x.size>=3); }},
   {id:"baddeley", who:"Baddeley", n:"Memoria de trabajo", d:"Repasa 50 tarjetas", ok:()=>state.log.filter(e=>e.k==="card").length>=50},
+  {id:"posner", who:"Posner", n:"Atención sostenida", d:"Completa 10 sesiones de estudio", ok:()=>state.estudio.sesiones.length>=10},
   {id:"piaget", who:"Piaget", n:"Operaciones formales", d:"Llega al último nivel", ok:()=>nivel().i===3}
 ];
 function revisarLogros(){
@@ -589,6 +607,8 @@ function vistaHoy(){
   }
   h += `<section class="card"><div class="sec-head"><h2>Esta semana</h2><button class="btn ghost" data-a="tab" data-tab="uni">Ver todo</button></div>
     ${semana.length||planes.length ? `<div class="list">${[...semana.map(p=>({f:p.o.fecha, h:itemPendiente(p)})), ...planes.map(v=>({f:v.fecha, h:itemEvento(v)}))].sort((a,b)=>a.f.localeCompare(b.f)).map(x=>x.h).join("")}</div>` : `<div class="empty">Nada en los próximos 7 días.</div>`}</section>`;
+  const act = state.estudio.activo;
+  if (act) h += `<button class="pomo-mini" data-a="irEstudio"><span><span class="muted small" style="font-weight:700;text-transform:uppercase;letter-spacing:.05em">${act.fase==="foco"?(act.pausa!=null?"En pausa":"Estudiando"):"Descanso"}</span><br><span style="font-weight:600">${esc(asig(act.asig).nombre)}</span></span><b id="pomo-mini-t">${mmss(restante())}</b></button>`;
   const nDue = tarjetasHoy().length;
   if (nDue) h += `<div class="due"><div><b>${nDue}</b><br><span>${nDue===1?"tarjeta para repasar hoy":"tarjetas para repasar hoy"}</span></div><button class="btn" data-a="estudiar">Repasar ahora</button></div>`;
   h += `<section class="card"><div class="sec-head"><h2>Hábitos de hoy</h2><span class="muted small">${hechos}/${state.habitos.length}</span></div>
@@ -601,8 +621,9 @@ function vistaHoy(){
 
 function vistaUni(){
   let h = cabecera("Universidad", "Tus asignaturas");
-  h += `<div class="seg" role="tablist"><button class="${ui.uniVista!=="tarjetas"?"on":""}" data-a="uniVista" data-v="entregas" role="tab">Trabajos y exámenes</button><button class="${ui.uniVista==="tarjetas"?"on":""}" data-a="uniVista" data-v="tarjetas" role="tab">Tarjetas</button></div>`;
+  h += `<div class="seg three" role="tablist">${[["entregas","Tareas"],["tarjetas","Tarjetas"],["estudio","Estudio"]].map(([k,l])=>`<button class="${ui.uniVista===k?"on":""}" data-a="uniVista" data-v="${k}" role="tab">${l}</button>`).join("")}</div>`;
   if (ui.uniVista==="tarjetas") return h + vistaTarjetas();
+  if (ui.uniVista==="estudio") return h + vistaEstudio();
   h += `<div class="chips" role="tablist"><button class="chip ${ui.asig==="todas"?"on":""}" data-a="filtro" data-id="todas">Todas</button>
     ${state.asignaturas.map(a=>`<button class="chip ${ui.asig===a.id?"on":""}" data-a="filtro" data-id="${a.id}"><span class="dot" style="background:${a.color}"></span>${esc(a.nombre)}</button>`).join("")}
     <button class="chip" data-a="nuevaAsig">${ICON.plus.replace('<svg','<svg width="14" height="14"')}Asignatura</button></div>`;
@@ -736,6 +757,84 @@ function calificar(v){
 }
 function anotarLogrosFin(){ revisarLogros(); }
 
+
+/* ---------- Temporizador de estudio (Pomodoro) ---------- */
+const mmss = ms => { const t = Math.max(0, Math.ceil(ms/1000)); return `${pad(Math.floor(t/60))}:${pad(t%60)}`; };
+function restante(){ const a = state.estudio.activo; if (!a) return 0; return a.pausa!=null ? a.pausa : a.fin - Date.now(); }
+function vistaEstudio(){
+  const a = state.estudio.activo, E = state.estudio;
+  if (!ui.pomoAsig || !state.asignaturas.some(x=>x.id===ui.pomoAsig)) ui.pomoAsig = (ui.asig!=="todas" && ui.asig) || state.asignaturas[0]?.id || null;
+  const pre = PRESETS.find(p=>p.id===ui.pomoPreset) || PRESETS[0];
+  const total = a ? a.dur*60000 : pre.foco*60000, rem = a ? restante() : total;
+  const C = 2*Math.PI*108, frac = a ? 1 - rem/total : 0;
+  const color = a && a.fase==="descanso" ? "var(--ok)" : "var(--accent)";
+  const etiqueta = !a ? "Listo" : a.fase==="descanso" ? "Descanso" : a.pausa!=null ? "En pausa" : "Concentración";
+  let h = `<section class="card pomo">
+    <div class="ring"><svg viewBox="0 0 240 240" aria-hidden="true"><circle cx="120" cy="120" r="108" fill="none" stroke="var(--line)" stroke-width="12"/>
+      <circle id="pomo-ring" cx="120" cy="120" r="108" fill="none" stroke="${color}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C*(1-frac)).toFixed(1)}"/></svg>
+      <div class="tm"><span id="pomo-lab">${etiqueta}</span><b id="pomo-time">${mmss(rem)}</b><small>${a ? esc(asig(a.asig).nombre) : ""}</small></div></div>`;
+  if (!a){
+    h += `<div class="field" style="width:100%"><label for="f-pomo-asig">¿Qué vas a estudiar?</label><select id="f-pomo-asig" data-a="nada">${optsAsig(ui.pomoAsig)}</select></div>
+      <div class="presets">${PRESETS.map(p=>`<button class="chip ${p.id===pre.id?"on":""}" data-a="preset" data-id="${p.id}">${p.n} · ${p.foco}+${p.desc} min</button>`).join("")}</div>
+      <div class="actions"><button class="btn primary big" data-a="pomoStart" ${state.asignaturas.length?"":"disabled"}>Empezar ${pre.foco} min</button></div>`;
+  } else {
+    h += `<div class="actions">${a.fase==="foco" ? `<button class="btn primary big" data-a="pomoPausa">${a.pausa!=null?"Seguir":"Pausar"}</button>` : ""}
+      <button class="btn big" data-a="pomoStop">${a.fase==="foco"?"Terminar":"Saltar descanso"}</button></div>
+      <p class="muted small" style="margin:0;text-align:center">${a.fase==="foco"?`Después vienen ${a.desc} min de descanso. Puedes cerrar la app: el tiempo sigue contando.`:"Levántate, bebe agua, mira lejos de la pantalla."}</p>`;
+  }
+  h += `</section>`;
+  // Estadísticas
+  const hoyS = hoy(), ini = iso(lunes(new Date()));
+  const sesHoy = E.sesiones.filter(x=>x.fecha===hoyS), sesSem = E.sesiones.filter(x=>x.fecha>=ini);
+  const sum = arr => arr.reduce((t,x)=>t+x.min,0);
+  const fmtH = m => m>=60 ? `${Math.floor(m/60)} h ${m%60?pad(m%60):""}`.trim() : `${m} min`;
+  const porAsig = state.asignaturas.map(x=>({a:x, m:sum(sesSem.filter(s=>s.asig===x.id))})).filter(x=>x.m>0).sort((p,q)=>q.m-p.m);
+  const max = Math.max(1,...porAsig.map(x=>x.m));
+  h += `<section class="card"><h2>Tu tiempo de estudio</h2>
+    <div class="stats"><div class="stat"><b>${fmtH(sum(sesHoy))}</b><span>hoy</span></div><div class="stat"><b>${fmtH(sum(sesSem))}</b><span>esta semana</span></div><div class="stat"><b>${E.sesiones.length}</b><span>sesiones</span></div></div>
+    ${porAsig.length ? `<div class="bytype">${porAsig.map(x=>`<div class="bt"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(x.a.nombre)}</span><span class="trk"><i style="width:${x.m/max*100}%;background:${x.a.color}"></i></span><span class="v">${fmtH(x.m)}</span></div>`).join("")}</div>`
+      : `<div class="empty">Cuando termines tu primera sesión, aquí verás cuánto le dedicas a cada asignatura esta semana.</div>`}</section>`;
+  return h;
+}
+function pomoStart(){
+  const sel = document.getElementById("f-pomo-asig"); if (sel) ui.pomoAsig = sel.value;
+  const pre = PRESETS.find(p=>p.id===ui.pomoPreset) || PRESETS[0];
+  state.estudio.activo = {asig:ui.pomoAsig, fase:"foco", dur:pre.foco, desc:pre.desc, inicio:Date.now(), fin:Date.now()+pre.foco*60000, pausa:null};
+  desbloquearAudio(); commit();
+}
+function registrarSesion(min, cuando){
+  const a = state.estudio.activo; if (!a || min < 1) return;
+  const ses = {id:uid(), asig:a.asig, min:Math.round(min), fecha:iso(new Date(cuando||Date.now()))};
+  state.estudio.sesiones.push(ses); anotar("foco", ses.id, ses.fecha);
+}
+function finFase(){
+  const a = state.estudio.activo; if (!a) return;
+  const ahora = Date.now();
+  if (a.fase==="foco"){
+    registrarSesion(a.dur, a.fin);
+    const finDesc = a.fin + a.desc*60000;
+    state.estudio.activo = ahora < finDesc ? {...a, fase:"descanso", dur:a.desc, fin:finDesc, pausa:null} : null;
+    pitido(); toast(`${a.dur} minutos de estudio`, ahora < finDesc ? `Ahora ${a.desc} min de descanso. ${MENSAJES_LUIS[Math.floor(Math.random()*MENSAJES_LUIS.length)]}` : "Sesión guardada.");
+  } else { state.estudio.activo = null; pitido(); toast("Descanso terminado", "¿Otra ronda?"); }
+  commit();
+}
+let audioCtx = null;
+function desbloquearAudio(){ try { audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)(); audioCtx.resume(); } catch {} }
+function pitido(){ try { if (!audioCtx || document.hidden) return; [0,0.25,0.5].forEach(t=>{ const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+  o.frequency.value = 880; o.connect(g); g.connect(audioCtx.destination); g.gain.setValueAtTime(.0001, audioCtx.currentTime+t);
+  g.gain.exponentialRampToValueAtTime(.25, audioCtx.currentTime+t+.02); g.gain.exponentialRampToValueAtTime(.0001, audioCtx.currentTime+t+.2);
+  o.start(audioCtx.currentTime+t); o.stop(audioCtx.currentTime+t+.22); }); } catch {} }
+setInterval(() => {
+  const a = state.estudio && state.estudio.activo; if (!a || a.pausa!=null) return;
+  const rem = a.fin - Date.now();
+  if (rem <= 0) return finFase();
+  const t = document.getElementById("pomo-time"); if (t) t.textContent = mmss(rem);
+  const r = document.getElementById("pomo-ring");
+  if (r){ const C = 2*Math.PI*108; r.setAttribute("stroke-dashoffset", (C*(rem/(a.dur*60000))).toFixed(1)); }
+  const m = document.getElementById("pomo-mini-t"); if (m) m.textContent = mmss(rem);
+}, 1000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden && state.estudio?.activo && state.estudio.activo.pausa==null && state.estudio.activo.fin <= Date.now()) finFase(); });
+
 /* ---------- Calendario ---------- */
 const tipoEj = id => state.ejercicio.tipos.find(t=>t.id===id) || {nombre:"Actividad", color:"#858B9B", min:30};
 function porDia(){
@@ -851,7 +950,7 @@ function dibujarRed(){
   cv.width = r.width*dpr; cv.height = r.height*dpr;
   const ctx = cv.getContext("2d"); ctx.scale(dpr,dpr);
   const W = r.width, H = r.height, css = getComputedStyle(document.documentElement);
-  const colK = {card:css.getPropertyValue("--lilac").trim(), ejer:"#3BA4E8", hab:css.getPropertyValue("--flame").trim(), sub:css.getPropertyValue("--ok").trim(), tema:css.getPropertyValue("--ok").trim(), trab:css.getPropertyValue("--accent").trim(), exam:css.getPropertyValue("--accent").trim()};
+  const colK = {foco:css.getPropertyValue("--accent").trim(), card:css.getPropertyValue("--lilac").trim(), ejer:"#3BA4E8", hab:css.getPropertyValue("--flame").trim(), sub:css.getPropertyValue("--ok").trim(), tema:css.getPropertyValue("--ok").trim(), trab:css.getPropertyValue("--accent").trim(), exam:css.getPropertyValue("--accent").trim()};
   const bgInk = css.getPropertyValue("--hero-ink").trim();
   let seed = 7; const rnd = () => (seed = (seed*16807)%2147483647)/2147483647;
   const ev = state.log.slice(-180);
@@ -1035,6 +1134,13 @@ document.addEventListener("click", ev => {
       document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
       toast("Copia descargada", "Guárdala en Archivos o iCloud Drive."); break; }
     case "uniVista": ui.uniVista = el.dataset.v; render(); break;
+    case "preset": { const sel = document.getElementById("f-pomo-asig"); if (sel) ui.pomoAsig = sel.value; ui.pomoPreset = id; render(); break; }
+    case "pomoStart": pomoStart(); break;
+    case "pomoPausa": { const a = state.estudio.activo; if (a.pausa!=null){ a.fin = Date.now()+a.pausa; a.pausa = null; } else { a.pausa = a.fin-Date.now(); } commit(); break; }
+    case "pomoStop": { const a = state.estudio.activo;
+      if (a.fase==="foco"){ const hecho = (a.dur*60000 - restante())/60000; registrarSesion(hecho); if (hecho>=1) toast(`${Math.round(hecho)} min guardados`); }
+      state.estudio.activo = null; commit(); break; }
+    case "irEstudio": ui.tab = "uni"; ui.uniVista = "estudio"; try{localStorage.setItem("sinapsis-tab",ui.tab);}catch{} render(); scrollTo(0,0); break;
     case "nuevaTarjeta": formTarjeta(); break;
     case "editTarjeta": formTarjeta(id); break;
     case "estudiar": empezarEstudio(!!el.dataset.todo); break;

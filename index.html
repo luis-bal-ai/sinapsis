@@ -571,9 +571,14 @@ async function bajar(){
   }
   // Primera vez en este dispositivo con esta cuenta y aquí ya había cosas: que elija ella.
   if (primera && vinculada !== cuenta.id && tieneDatos(state) && state.updatedAt > 0) {
+    let remotoConDatos = false; try { remotoConDatos = tieneDatos(completar(JSON.parse(JSON.stringify(data.datos)))); } catch {}
+    // La cuenta está vacía: se queda lo de este dispositivo sin preguntar.
+    if (!remotoConDatos) { try { localStorage.setItem(LS_VINC, cuenta.id); } catch {} state.updatedAt = Date.now(); guardarLocal(); return subir(); }
+    // Este dispositivo no tiene nada propio: se usa lo de la cuenta.
     ui.conflicto = data; preguntarConflicto(); return;
   }
   try { localStorage.setItem(LS_VINC, cuenta.id); } catch {}
+  if (primera && vinculada !== cuenta.id && !tieneDatos(state)) { state.updatedAt = 0; }
   aplicarRemoto(data);
 }
 function aplicarRemoto(d){

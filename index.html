@@ -78,7 +78,8 @@ h2{font-family:var(--f-display);font-weight:700;font-size:19px;letter-spacing:-.
 .lvl-chip b{font-size:11px;font-weight:700;color:var(--lilac);background:var(--lilac-soft);padding:3px 9px;border-radius:99px;white-space:nowrap}
 .bar{height:6px;width:110px;border-radius:99px;background:var(--line);overflow:hidden}
 .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--lilac),var(--accent));border-radius:99px;transition:width .4s}
-.sync{font-size:11px;color:var(--ink-3)}
+.sync{font-size:11px;color:var(--ink-3);background:none;border:0;padding:0;cursor:pointer;text-align:right}
+.sync.on{color:var(--accent)}
 
 /* Tarjetas */
 .card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:16px;display:flex;flex-direction:column;gap:12px}
@@ -398,6 +399,11 @@ nav.tabs button.on{color:var(--accent);background:var(--accent-soft)}
 /* ============ Personaliza aquí ============ */
 const NOMBRE = "Claudia";
 const WEB = true; // true en la versión publicada fuera de Claude (activa la copia de seguridad)
+// Cuenta y sincronización (Supabase). Pega aquí los datos de tu proyecto:
+// Supabase → Project Settings → API → "Project URL" y la clave "anon public" / "publishable".
+// Si se dejan vacíos, la app funciona como antes: todo se guarda solo en el dispositivo.
+const SUPABASE_URL = "";
+const SUPABASE_KEY = "";
 const STICKERS = ["stickers/s1.webp","stickers/s2.webp","stickers/s3.webp","stickers/s4.webp","stickers/s5.webp","stickers/s6.webp","stickers/s7.webp","stickers/s8.webp"];
 const diaDelAño = () => Math.floor((new Date() - new Date(new Date().getFullYear(),0,0))/864e5);
 const stickerDia = (k=0) => STICKERS[(diaDelAño() + k*3) % STICKERS.length];
@@ -522,51 +528,168 @@ function completar(st){
   return st;
 }
 
-/* ---------- Guardado: cuenta de Claude si existe, si no, este dispositivo ---------- */
-const LS_KEY = "sinapsis-estado-v1";
-let state, ref = null, modo = "local", ultimaEscritura = 0, timerGuardar = null;
-try { const raw = localStorage.getItem(LS_KEY); state = raw ? JSON.parse(raw) : inicial(); } catch { state = inicial(); }
+/* ---------- Guardado: en la cuenta (si hay sesión) y siempre también en este dispositivo ---------- */
+const LS_KEY = "sinapsis-estado-v1", LS_VINC = "sinapsis-cuenta-vinculada";
+let state, modo = "local", ultimaEscritura = 0, timerGuardar = null;
+let sb = null, cuenta = null, canal = null, primeraBajada = true;
+const CUENTA_ACTIVA = !!(SUPABASE_URL && SUPABASE_KEY);
+try {
+  const raw = localStorage.getItem(LS_KEY);
+  // Un dispositivo sin datos empieza "viejo" (updatedAt 0) para que lo de la cuenta siempre gane.
+  state = raw ? JSON.parse(raw) : {...inicial(), updatedAt:0};
+} catch { state = {...inicial(), updatedAt:0}; }
 state = completar(state);
 let ui = {tab:"hoy", asig:"todas", armado:null, mes:new Date(new Date().getFullYear(), new Date().getMonth(), 1), dia:iso(new Date()), semana:lunes(new Date()), editTipos:false, uniVista:"entregas", sesion:null, pomoAsig:null, pomoPreset:"p25"};
 try { ui.tab = localStorage.getItem("sinapsis-tab") || "hoy"; } catch {}
 
 function guardarLocal(){ try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch {} }
+function tieneDatos(st){ return !!(st.trabajos.length || st.examenes.length || st.habitos.length || st.eventos.length || st.tarjetas.length || st.log.length || st.ejercicio.registros.length); }
+
 function programarGuardado(){
-  if (!ref) return;
+  if (!sb || !cuenta || ui.conflicto) return;
   clearTimeout(timerGuardar);
-  timerGuardar = setTimeout(async () => {
-    ultimaEscritura = state.updatedAt;
-    try { await ref.set({json: JSON.stringify(state), updatedAt: state.updatedAt}); modo = "db"; }
-    catch (e) {
-      if (e && e.code === "unavailable") { setTimeout(programarGuardado, 1500 + Math.random()*1500); return; }
-      modo = "local"; ref = null;
-    }
-    pintarSync();
-  }, 700);
+  timerGuardar = setTimeout(subir, 700);
+}
+async function subir(){
+  if (!sb || !cuenta) return;
+  ultimaEscritura = state.updatedAt;
+  const { error } = await sb.from("sinapsis").upsert({ user_id: cuenta.id, datos: state, updated_at: state.updatedAt });
+  if (error) { modo = "pendiente"; clearTimeout(timerGuardar); timerGuardar = setTimeout(subir, 15000); }
+  else modo = "db";
+  pintarSync();
+}
+// Trae lo de la cuenta y decide qué versión vale (la más reciente).
+async function bajar(){
+  if (!sb || !cuenta) return;
+  const { data, error } = await sb.from("sinapsis").select("datos, updated_at").eq("user_id", cuenta.id).maybeSingle();
+  if (error) { modo = "pendiente"; pintarSync(); return; }
+  const primera = primeraBajada; primeraBajada = false;
+  let vinculada = null; try { vinculada = localStorage.getItem(LS_VINC); } catch {}
+  if (!data) { // cuenta recién creada: se sube lo que haya en este dispositivo
+    try { localStorage.setItem(LS_VINC, cuenta.id); } catch {}
+    state.updatedAt = Date.now(); guardarLocal(); return subir();
+  }
+  // Primera vez en este dispositivo con esta cuenta y aquí ya había cosas: que elija ella.
+  if (primera && vinculada !== cuenta.id && tieneDatos(state) && state.updatedAt > 0) {
+    ui.conflicto = data; preguntarConflicto(); return;
+  }
+  try { localStorage.setItem(LS_VINC, cuenta.id); } catch {}
+  aplicarRemoto(data);
+}
+function aplicarRemoto(d){
+  if (!d || !d.datos || ui.conflicto) return;
+  const r = Number(d.updated_at) || 0;
+  if (r === ultimaEscritura && r === state.updatedAt) { modo = "db"; pintarSync(); return; }
+  if (r > (state.updatedAt || 0)) {
+    try { state = completar(d.datos); state.updatedAt = r; guardarLocal(); if (!document.querySelector(".scrim")) render(); } catch {}
+    modo = "db"; pintarSync();
+  } else if (r < (state.updatedAt || 0)) programarGuardado();
+  else { modo = "db"; pintarSync(); }
+}
+function preguntarConflicto(){
+  abrir(`<h2>Ya tienes cosas en tu cuenta</h2>
+    <p class="muted" style="margin:0">En este dispositivo también hay datos guardados. ¿Con cuáles te quedas? Los otros se borrarán.</p>
+    <div class="actions" style="flex-direction:column;align-items:stretch">
+      <button class="btn primary" data-a="usarCuenta">Usar los de mi cuenta</button>
+      <button class="btn" data-a="usarDispositivo">Usar los de este dispositivo</button></div>
+    <p class="muted small" style="margin:0">Si dudas, elige «mi cuenta»: es lo que ya tienes en tus otros dispositivos.</p>`);
+}
+function resolverConflicto(usarCuenta){
+  const d = ui.conflicto; ui.conflicto = null;
+  try { localStorage.setItem(LS_VINC, cuenta.id); } catch {}
+  if (usarCuenta) { state = completar(d.datos); state.updatedAt = Number(d.updated_at) || Date.now(); guardarLocal(); modo = "db"; }
+  else { state.updatedAt = Date.now(); guardarLocal(); subir(); }
+  cerrar(); toast(usarCuenta ? "Listo, ya tienes tus cosas" : "Subido a tu cuenta");
+}
+
+function cargarSupabase(){
+  if (window.supabase) return Promise.resolve();
+  return new Promise((ok, ko) => {
+    const sc = document.createElement("script");
+    sc.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js";
+    sc.onload = ok; sc.onerror = ko; document.head.appendChild(sc);
+  });
 }
 async function conectar(){
-  const use = window.claude && window.claude.use;
-  if (!use) return;
-  try {
-    const [db, user] = await Promise.all([use("db"), use("user")]);
-    const id = user ? await user.id() : null;
-    if (!db || !id) return;
-    ref = db.doc("data/users/" + id + "/sinapsis");
-    const snap = await ref.get();
-    if (snap.exists) {
-      const remoto = JSON.parse(snap.data().json);
-      if ((remoto.updatedAt||0) >= (state.updatedAt||0)) { state = completar(remoto); guardarLocal(); render(); }
-      else programarGuardado();
-    } else programarGuardado();
-    modo = "db"; pintarSync();
-    ref.onSnapshot(s => {
-      if (!s.exists) return;
-      const d = s.data();
-      if (d.updatedAt > (state.updatedAt||0) && d.updatedAt !== ultimaEscritura) {
-        try { state = completar(JSON.parse(d.json)); guardarLocal(); if (!document.querySelector(".scrim")) render(); } catch {}
-      }
-    }, () => {});
-  } catch { ref = null; modo = "local"; pintarSync(); }
+  if (!CUENTA_ACTIVA) return;
+  try { await cargarSupabase(); } catch { modo = "local"; pintarSync(); return; }
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+  sb.auth.onAuthStateChange((evento, sesion) => {
+    // Fuera del callback: Supabase no permite esperar otras llamadas aquí dentro.
+    setTimeout(() => {
+      if (evento === "PASSWORD_RECOVERY") { formNuevaClave(); }
+      const u = sesion ? sesion.user : null;
+      if ((u && u.id) !== (cuenta && cuenta.id)) { cuenta = u; alCambiarCuenta(); }
+    }, 0);
+  });
+}
+function alCambiarCuenta(){
+  if (canal) { sb.removeChannel(canal); canal = null; }
+  if (!cuenta) { modo = "local"; primeraBajada = true; render(); return; }
+  modo = "pendiente"; pintarSync();
+  canal = sb.channel("sinapsis-" + cuenta.id)
+    .on("postgres_changes", { event: "*", schema: "public", table: "sinapsis", filter: "user_id=eq." + cuenta.id }, p => aplicarRemoto(p.new))
+    .subscribe();
+  bajar();
+}
+// Al volver a la app (desde otra app o pestaña) se trae lo último.
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && cuenta) bajar(); });
+addEventListener("online", () => { if (cuenta) { bajar(); } });
+
+/* Cuenta: entrar, crear, salir, recuperar contraseña */
+const ERRORES_AUTH = {
+  "Invalid login credentials": "El correo o la contraseña no son correctos.",
+  "Email not confirmed": "Falta confirmar el correo: abre el email que te ha llegado.",
+  "User already registered": "Ya hay una cuenta con ese correo. Pulsa «Entrar».",
+  "Password should be at least 6 characters.": "La contraseña tiene que tener al menos 6 caracteres.",
+  "Signups not allowed for this instance": "Ahora mismo no se pueden crear cuentas nuevas."
+};
+const errAuth = e => ERRORES_AUTH[e && e.message] || (navigator.onLine ? (e && e.message) || "Algo ha fallado" : "No hay conexión a internet");
+function formCuenta(){
+  if (!CUENTA_ACTIVA) return;
+  if (cuenta) {
+    abrir(`<h2>Tu cuenta</h2>
+      <p class="muted" style="margin:0">Has entrado como <b>${esc(cuenta.email || "")}</b>. Todo lo que hagas se guarda en tu cuenta y aparece en el móvil y en el ordenador.</p>
+      <p class="muted small" style="margin:0">${modo==="db" ? "Todo sincronizado." : "Hay cambios esperando conexión; se subirán solos."}</p>
+      <div class="actions"><button class="btn danger" data-a="salir">Cerrar sesión</button></div>`);
+    return;
+  }
+  abrir(`<h2>Inicia sesión</h2>
+    <p class="muted" style="margin:0">Con tu cuenta tendrás lo mismo en el móvil y en el ordenador. Usa el mismo correo y contraseña en los dos.</p>
+    <form data-f="login" style="display:flex;flex-direction:column;gap:14px">
+      <div class="field"><label for="f-email">Correo</label><input id="f-email" type="email" autocomplete="email" autocapitalize="off" required></div>
+      <div class="field"><label for="f-clave">Contraseña</label><input id="f-clave" type="password" autocomplete="current-password" minlength="6" required></div>
+      <div class="actions"><button class="btn primary" value="in">Entrar</button><button class="btn" value="up">Crear cuenta</button></div>
+    </form>
+    <button class="btn ghost" data-a="olvide" style="align-self:flex-start">¿Has olvidado la contraseña?</button>`);
+}
+function formNuevaClave(){
+  abrir(`<h2>Nueva contraseña</h2><form data-f="nuevaClave" style="display:flex;flex-direction:column;gap:14px">
+    <div class="field"><label for="f-clave">Escribe tu nueva contraseña</label><input id="f-clave" type="password" autocomplete="new-password" minlength="6" required></div>
+    <div class="actions"><button class="btn primary">Guardar</button></div></form>`);
+}
+async function entrar(email, clave, crear){
+  if (!sb) { toast("No se puede conectar", "Revisa la conexión e inténtalo otra vez."); return; }
+  const r = crear ? await sb.auth.signUp({ email, password: clave, options: { emailRedirectTo: location.origin + location.pathname } })
+                  : await sb.auth.signInWithPassword({ email, password: clave });
+  if (r.error) { toast("No se ha podido", errAuth(r.error)); return; }
+  if (crear && !r.data.session) { cerrar(); toast("Revisa tu correo", "Confirma la cuenta desde el email y luego pulsa «Entrar»."); return; }
+  if (crear && r.data.user && r.data.user.identities && r.data.user.identities.length === 0) { toast("Ya hay una cuenta con ese correo", "Pulsa «Entrar»."); return; }
+  cerrar(); toast(crear ? "Cuenta creada" : "¡Hola de nuevo!", "Tus cosas se guardan ya en tu cuenta.");
+}
+async function salir(){
+  if (!sb) return;
+  clearTimeout(timerGuardar);
+  if (cuenta && modo !== "db") await subir();
+  await sb.auth.signOut();
+  cerrar(); toast("Sesión cerrada", "Lo que hay aquí sigue guardado en este dispositivo.");
+}
+async function olvide(){
+  const email = (document.getElementById("f-email")?.value || "").trim();
+  if (!email) { toast("Escribe primero tu correo", "Y vuelve a pulsar «¿Has olvidado la contraseña?»."); document.getElementById("f-email")?.focus(); return; }
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
+  if (error) { toast("No se ha podido", errAuth(error)); return; }
+  cerrar(); toast("Te hemos enviado un correo", "Ábrelo y elige una contraseña nueva.");
 }
 function commit(){
   state.updatedAt = Date.now();
@@ -666,7 +789,7 @@ function toast(t, s){
 function cabecera(eyebrow, titulo, html){
   const nv = nivel();
   return `<header class="top"><div style="min-width:0"><div class="eyebrow">${esc(eyebrow)}</div><h1>${html || esc(titulo)}</h1></div>
-    <div class="lvl-chip"><b>${esc(nv.nombre)}</b><div class="bar"><i style="width:${Math.round(nv.pct*100)}%"></i></div><span class="sync" id="sync"></span></div></header>
+    <div class="lvl-chip"><b>${esc(nv.nombre)}</b><div class="bar"><i style="width:${Math.round(nv.pct*100)}%"></i></div><button class="sync" id="sync" data-a="cuenta" type="button"></button></div></header>
 `;
 }
 function itemPendiente({tipo,o}){
@@ -784,8 +907,11 @@ function vistaProgreso(){
   const got = LOGROS.filter(l=>l.ok()).length;
   h += `<section class="card"><div class="sec-head"><h2>Logros</h2><span class="muted small">${got}/${LOGROS.length}</span></div>
     <div class="badges">${LOGROS.map(l=>{ const on=l.ok(); return `<div class="badge ${on?"on":""}"><span class="who">${esc(l.who)}</span><span class="n">${esc(l.n)}</span><span class="d">${esc(l.d)}</span></div>`; }).join("")}</div></section>`;
+  if (CUENTA_ACTIVA) h += `<section class="card"><h2>Tu cuenta</h2>
+    <p class="muted small" style="margin:0">${cuenta ? `Has entrado como <b>${esc(cuenta.email||"")}</b>. Tienes lo mismo en el móvil y en el ordenador.` : "Inicia sesión para tener tus cosas en el móvil y en el ordenador a la vez, y no perderlas nunca."}</p>
+    <div class="actions"><button class="btn ${cuenta?"":"primary"}" data-a="cuenta">${cuenta?"Ver cuenta":"Iniciar sesión"}</button></div></section>`;
   if (WEB) h += `<section class="card"><h2>Copia de seguridad</h2>
-    <p class="muted small" style="margin:0">Todo se guarda en este móvil. Descarga una copia de vez en cuando (por ejemplo, a iCloud Drive) para no perder nada si cambias de móvil o borras los datos de Safari.</p>
+    <p class="muted small" style="margin:0">${cuenta ? "Tus cosas ya están a salvo en tu cuenta. Esta copia es un extra, por si acaso." : "Todo se guarda en este móvil. Descarga una copia de vez en cuando (por ejemplo, a iCloud Drive) para no perder nada si cambias de móvil o borras los datos de Safari."}</p>
     <div class="actions"><button class="btn primary" data-a="exportar">Descargar copia</button>
     <label class="btn" for="f-restaurar" style="cursor:pointer">Restaurar copia</label><input id="f-restaurar" type="file" accept=".json,application/json" hidden></div></section>`;
   return h;
@@ -1470,9 +1596,14 @@ function formTipo(id){
 document.addEventListener("click", ev => {
   const el = ev.target.closest("[data-a]"); if (!el) return;
   const a = el.dataset.a, id = el.dataset.id, tipo = el.dataset.tipo;
-  if (a==="cerrarFondo"){ if (ev.target===el){ if (ui.sesion){ ui.sesion=null; state.tarjetas.forEach(t=>delete t.fallo); commit(); } cerrar(); } return; }
+  if (a==="cerrarFondo"){ if (ev.target===el && !ui.conflicto){ if (ui.sesion){ ui.sesion=null; state.tarjetas.forEach(t=>delete t.fallo); commit(); } cerrar(); } return; }
   if (a!=="borrar") ui.armado = null;
   switch(a){
+    case "cuenta": formCuenta(); break;
+    case "salir": salir(); break;
+    case "olvide": olvide(); break;
+    case "usarCuenta": resolverConflicto(true); break;
+    case "usarDispositivo": resolverConflicto(false); break;
     case "tab": ui.tab = el.dataset.tab; try{localStorage.setItem("sinapsis-tab",ui.tab);}catch{} render(); scrollTo(0,0); break;
     case "filtro": ui.asig = id; render(); break;
     case "ver": tipo==="trab" ? verTrabajo(id) : verExamen(id); break;
@@ -1557,6 +1688,10 @@ document.addEventListener("submit", ev => {
   ev.preventDefault();
   const v = id => (document.getElementById(id)?.value ?? "").trim();
   const id = f.dataset.id, k = f.dataset.f;
+  if (k==="login"){ const b = ev.submitter; if (b) b.disabled = true;
+    entrar(v("f-email"), document.getElementById("f-clave").value, b && b.value==="up").finally(()=>{ if (b) b.disabled = false; }); return; }
+  if (k==="nuevaClave"){ sb.auth.updateUser({ password: document.getElementById("f-clave").value }).then(({error}) => {
+      if (error) toast("No se ha podido", errAuth(error)); else { cerrar(); toast("Contraseña cambiada"); } }); return; }
   const lineas = () => v("f-pasos").split("\n").map(s=>s.trim()).filter(Boolean).map(t=>({id:uid(), t, ok:false}));
   if (k==="asig"){ if(!v("f-nombre")) return;
     if (id) Object.assign(state.asignaturas.find(x=>x.id===id), {nombre:v("f-nombre"), color:v("f-color")});
@@ -1608,17 +1743,19 @@ document.addEventListener("change", ev => {
   if (ev.target.id !== "f-restaurar" || !ev.target.files[0]) return;
   const fr = new FileReader();
   fr.onload = () => { try { const d = JSON.parse(fr.result); if (!Array.isArray(d.asignaturas)) throw 0;
-      state = completar(d); state.updatedAt = Date.now(); guardarLocal(); render(); toast("Copia restaurada"); }
+      state = completar(d); state.updatedAt = Date.now(); guardarLocal(); programarGuardado(); render(); toast("Copia restaurada"); }
     catch { toast("Ese archivo no es una copia de Sinapsis", "Elige el archivo sinapsis-copia-….json"); } };
   fr.readAsText(ev.target.files[0]);
 });
 document.addEventListener("keydown", e => { if (e.key==="Escape" && calmaVista){ abrirCalma(calmaVista==="menu"?null:"menu"); return; } });
-document.addEventListener("keydown", e => { if (e.key==="Escape" && document.querySelector(".scrim")) { if (ui.sesion){ ui.sesion=null; state.tarjetas.forEach(t=>delete t.fallo); commit(); } cerrar(); } });
+document.addEventListener("keydown", e => { if (e.key==="Escape" && document.querySelector(".scrim") && !ui.conflicto) { if (ui.sesion){ ui.sesion=null; state.tarjetas.forEach(t=>delete t.fallo); commit(); } cerrar(); } });
 
 /* ---------- Render ---------- */
 function pintarSync(){
   const el = document.getElementById("sync"); if (!el) return;
-  el.textContent = modo==="db" ? "Guardado en tu cuenta" : "Guardado en este dispositivo";
+  el.textContent = cuenta ? (modo==="db" ? "Sincronizado ✓" : "Sincronizando…") : (CUENTA_ACTIVA ? "Iniciar sesión" : "Guardado en este dispositivo");
+  el.classList.toggle("on", CUENTA_ACTIVA && !cuenta);
+  if (!CUENTA_ACTIVA) el.removeAttribute("data-a");
 }
 function render(){
   const vistas = {hoy:vistaHoy, uni:vistaUni, cal:vistaCal, hab:vistaHabitos, ejer:vistaEjer, prog:vistaProgreso};

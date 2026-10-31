@@ -1,6 +1,6 @@
 // Sinapsis: funciona sin conexión.
 // La página siempre intenta bajarse la versión nueva y, si no hay internet, usa la guardada.
-const CACHE = "sinapsis-v1";
+const CACHE = "sinapsis-v2";
 const BASE = ["./", "index.html", "manifest.json", "apple-touch-icon.png", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", e => {
@@ -30,8 +30,8 @@ self.addEventListener("fetch", e => {
     return;
   }
 
-  // Iconos y tipografías: lo guardado primero (cargan al instante) y se refresca en segundo plano.
-  if (url.origin === location.origin || url.hostname.endsWith("fonts.googleapis.com") || url.hostname.endsWith("fonts.gstatic.com")) {
+  // Iconos, tipografías y la librería de la cuenta: lo guardado primero (cargan al instante) y se refresca en segundo plano.
+  if (url.origin === location.origin || url.hostname.endsWith("fonts.googleapis.com") || url.hostname.endsWith("fonts.gstatic.com") || url.hostname === "cdn.jsdelivr.net") {
     e.respondWith(
       caches.match(req).then(guardado => {
         const red = fetch(req).then(res => {

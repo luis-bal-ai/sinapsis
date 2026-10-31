@@ -14,9 +14,9 @@ drop policy if exists "ver lo mío"      on public.sinapsis;
 drop policy if exists "crear lo mío"    on public.sinapsis;
 drop policy if exists "cambiar lo mío"  on public.sinapsis;
 
-create policy "ver lo mío"     on public.sinapsis for select using (auth.uid() = user_id);
-create policy "crear lo mío"   on public.sinapsis for insert with check (auth.uid() = user_id);
-create policy "cambiar lo mío" on public.sinapsis for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "ver lo mío"     on public.sinapsis for select to authenticated using ((select auth.uid()) = user_id);
+create policy "crear lo mío"   on public.sinapsis for insert to authenticated with check ((select auth.uid()) = user_id);
+create policy "cambiar lo mío" on public.sinapsis for update to authenticated using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
 
 -- Cambios en directo entre el móvil y el ordenador.
 alter publication supabase_realtime add table public.sinapsis;

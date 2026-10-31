@@ -402,8 +402,8 @@ const WEB = true; // true en la versión publicada fuera de Claude (activa la co
 // Cuenta y sincronización (Supabase). Pega aquí los datos de tu proyecto:
 // Supabase → Project Settings → API → "Project URL" y la clave "anon public" / "publishable".
 // Si se dejan vacíos, la app funciona como antes: todo se guarda solo en el dispositivo.
-const SUPABASE_URL = "";
-const SUPABASE_KEY = "";
+const SUPABASE_URL = "https://bytgapotokypkoabvujv.supabase.co";
+const SUPABASE_KEY = "sb_publishable_75XTaOuwLlMrNqwvKY8aJA_A7kXkZYS";
 const STICKERS = ["stickers/s1.webp","stickers/s2.webp","stickers/s3.webp","stickers/s4.webp","stickers/s5.webp","stickers/s6.webp","stickers/s7.webp","stickers/s8.webp"];
 const diaDelAño = () => Math.floor((new Date() - new Date(new Date().getFullYear(),0,0))/864e5);
 const stickerDia = (k=0) => STICKERS[(diaDelAño() + k*3) % STICKERS.length];

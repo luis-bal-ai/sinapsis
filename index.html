@@ -376,6 +376,32 @@ nav.tabs button.on{color:var(--accent);background:var(--accent-soft)}
 .sub.on .box svg{opacity:1;color:#fff}
 .sub.on span{color:var(--ink-3);text-decoration:line-through}
 .addline{display:flex;gap:8px}
+/* Agenda */
+.todos{display:flex;flex-direction:column}
+.todo{display:flex;align-items:flex-start;gap:4px;border-top:1px solid var(--line)}
+.todos .todo:first-child{border-top:0}
+.todo .tk{background:none;border:0;padding:9px 8px 9px 0;flex:none}
+.todo .tt{background:none;border:0;padding:9px 0;text-align:left;flex:1;min-width:0;overflow-wrap:anywhere;font-size:15px}
+.todo.on .box{background:var(--ok);border-color:var(--ok)}
+.todo.on .box svg{opacity:1;color:#fff}
+.todo.on .tt{color:var(--ink-3);text-decoration:line-through}
+.todo .tt small{display:block;font-size:12px;color:var(--late);text-decoration:none}
+.qadd{display:flex;gap:8px;align-items:center}
+.qadd input{flex:1;min-width:0;border:1.5px dashed var(--line);background:transparent;border-radius:12px;padding:10px 12px;font-size:16px}
+.qadd input:focus{border-style:solid;border-color:var(--accent);outline:0;background:var(--surface-2)}
+.qadd button{flex:none;width:42px;height:42px;border-radius:12px;border:0;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
+.qadd button svg{width:18px;height:18px}
+.ag-day{gap:10px}
+.ag-day.past{opacity:.72}
+.ag-day.today{outline:2px solid var(--accent);outline-offset:-2px}
+.ag-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.ag-head h2{display:flex;align-items:center;gap:8px}
+.ag-head .pill{font-size:11px;font-weight:700;color:var(--accent-ink);background:var(--accent);padding:2px 8px;border-radius:99px}
+.ag-ctx{display:flex;flex-wrap:wrap;gap:6px}
+.ag-ctx button{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:99px;padding:4px 10px;font-size:12px;font-weight:700;background:var(--surface-2);color:var(--ink-2);max-width:100%}
+.ag-ctx button i{width:8px;height:8px;border-radius:50%;flex:none}
+.ag-ctx button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.atraso{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:var(--surface-2);font-size:14px}
 .addline input{flex:1;min-width:0;border:1.5px solid var(--line);background:var(--surface-2);border-radius:12px;padding:10px 12px;font-size:16px}
 .detail-head{display:flex;flex-direction:column;gap:6px}
 .detail-head h2{font-size:24px;line-height:1.15}
@@ -452,7 +478,7 @@ const NIVELES = [
   {n:"Operaciones concretas", min:500},
   {n:"Operaciones formales", min:1200}
 ];
-const XP = {sub:5, tema:5, trab:25, exam:40, hab:10, ejer:10, card:2, foco:15, animo:5};
+const XP = {sub:5, tema:5, trab:25, exam:40, hab:10, ejer:10, card:2, foco:15, animo:5, tarea:3};
 const ANIMOS = [{v:1,n:"Fatal",c:"#D7263D"},{v:2,n:"Regular",c:"#F2782B"},{v:3,n:"Normal",c:"#B8A13A"},{v:4,n:"Bien",c:"#5DBB63"},{v:5,n:"Genial",c:"#17A57E"}];
 function cara(v){ const boca = {1:"M11 24 Q17 18 23 24",2:"M11 23 Q17 20.5 23 23",3:"M11 22 L23 22",4:"M11 21 Q17 25 23 21",5:"M10 20 Q17 28 24 20"}[v];
   return `<svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="17" cy="17" r="14.5"/><circle cx="12" cy="14" r="1.2" fill="currentColor"/><circle cx="22" cy="14" r="1.2" fill="currentColor"/><path d="${boca}"/></svg>`; }
@@ -509,11 +535,12 @@ function tiposBase(){ return [
   {id:"x2", nombre:"Gimnasio", color:COLORES[1], min:60},
   {id:"x3", nombre:"Meditación", color:COLORES[3], min:10}
 ]; }
-const inicial = () => ({v:1, ejemplo:false, paleta2:true, asignaturas:ASIGNATURAS.map(([nombre,color])=>({id:uid(), nombre, color})), trabajos:[], examenes:[], habitos:[], marcas:{}, log:[], eventos:[], ejercicio:{tipos:tiposBase(), registros:[]}, tarjetas:[], estudio:{sesiones:[], activo:null}, animo:{}, vistos:[], updatedAt:Date.now()});
+const inicial = () => ({v:1, ejemplo:false, paleta2:true, asignaturas:ASIGNATURAS.map(([nombre,color])=>({id:uid(), nombre, color})), trabajos:[], examenes:[], habitos:[], marcas:{}, log:[], eventos:[], agenda:[], ejercicio:{tipos:tiposBase(), registros:[]}, tarjetas:[], estudio:{sesiones:[], activo:null}, animo:{}, vistos:[], updatedAt:Date.now()});
 // Completa estados guardados con versiones anteriores de la app.
 function completar(st){
   if (!st || st.ejemplo) return inicial();
   st.eventos = st.eventos || [];
+  st.agenda = st.agenda || [];
   st.ejercicio = st.ejercicio || {tipos:tiposBase(), registros:[]};
   st.ejercicio.tipos = st.ejercicio.tipos || tiposBase();
   st.ejercicio.registros = st.ejercicio.registros || [];
@@ -539,11 +566,11 @@ try {
   state = raw ? JSON.parse(raw) : {...inicial(), updatedAt:0};
 } catch { state = {...inicial(), updatedAt:0}; }
 state = completar(state);
-let ui = {tab:"hoy", asig:"todas", armado:null, mes:new Date(new Date().getFullYear(), new Date().getMonth(), 1), dia:iso(new Date()), semana:lunes(new Date()), editTipos:false, uniVista:"entregas", sesion:null, pomoAsig:null, pomoPreset:"p25"};
-try { ui.tab = localStorage.getItem("sinapsis-tab") || "hoy"; } catch {}
+let ui = {tab:"hoy", asig:"todas", armado:null, mes:new Date(new Date().getFullYear(), new Date().getMonth(), 1), dia:iso(new Date()), semana:lunes(new Date()), editTipos:false, calVista:"semana", uniVista:"entregas", sesion:null, pomoAsig:null, pomoPreset:"p25"};
+try { ui.tab = localStorage.getItem("sinapsis-tab") || "hoy"; ui.calVista = localStorage.getItem("sinapsis-calvista") || "semana"; } catch {}
 
 function guardarLocal(){ try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch {} }
-function tieneDatos(st){ return !!(st.trabajos.length || st.examenes.length || st.habitos.length || st.eventos.length || st.tarjetas.length || st.log.length || st.ejercicio.registros.length); }
+function tieneDatos(st){ return !!((st.agenda||[]).length || st.trabajos.length || st.examenes.length || st.habitos.length || st.eventos.length || st.tarjetas.length || st.log.length || st.ejercicio.registros.length); }
 
 function programarGuardado(){
   if (!sb || !cuenta || ui.conflicto) return;
@@ -833,6 +860,7 @@ function vistaHoy(){
       <div><div class="num">${Math.max(n,0)}</div><div class="unit">${n===1?"día":"días"}</div></div>
       <div class="meta"><span>${e.temas.filter(t=>t.ok).length} de ${e.temas.length} temas</span><div class="bar"><i style="width:${Math.round(p*100)}%"></i></div></div></button>`;
   }
+  h += bloqueHoyAgenda();
   h += `<section class="card"><div class="sec-head"><h2>Esta semana</h2><button class="btn ghost" data-a="tab" data-tab="uni">Ver todo</button></div>
     ${semana.length||planes.length ? `<div class="list">${[...semana.map(p=>({f:p.o.fecha, h:itemPendiente(p)})), ...planes.map(v=>({f:v.fecha, h:itemEvento(v)}))].sort((a,b)=>a.f.localeCompare(b.f)).map(x=>x.h).join("")}</div>` : `<div class="empty">Nada en los próximos 7 días.</div>`}</section>`;
   const am = state.animo[hoy()];
@@ -907,7 +935,7 @@ function vistaProgreso(){
     <div class="net-cap"><div><b>${state.log.length}</b><br><span>conexiones creadas</span></div><span style="text-align:right">${nv.xp} puntos</span></div></div>`;
   h += `<section class="card"><div class="sec-head"><h2>Etapa: ${esc(nv.nombre)}</h2><span class="muted small">${nv.sig?`${nv.sig.min-nv.xp} para la siguiente`:"Etapa final"}</span></div>
     <div class="stages">${NIVELES.map((l,j)=>`<div class="stage ${j===nv.i?"cur":""}"><i><b style="width:${j<nv.i?100:j===nv.i?Math.round(nv.pct*100):0}%"></b></i>${esc(l.n)}</div>`).join("")}</div>
-    <p class="muted small" style="margin:0">Ánimo +5 · hábito o ejercicio +10 · subtarea o tema +5 · trabajo entregado +25 · examen hecho +40</p></section>`;
+    <p class="muted small" style="margin:0">Ánimo +5 · tarea de la agenda +3 · hábito o ejercicio +10 · subtarea o tema +5 · trabajo entregado +25 · examen hecho +40</p></section>`;
   h += vistaAnimo();
   const got = LOGROS.filter(l=>l.ok()).length;
   h += `<section class="card"><div class="sec-head"><h2>Logros</h2><span class="muted small">${got}/${LOGROS.length}</span></div>
@@ -1370,9 +1398,54 @@ function itemRegistro(r, conFecha){
     <span style="font-size:13px;color:var(--ink-3);overflow-wrap:anywhere">${r.min?`${r.min} min`:""}${r.nota?` · ${esc(r.nota)}`:""}</span></span>
     <span class="when ok" style="font-size:12px;font-weight:700;white-space:nowrap">${conFecha?fmtFecha(r.fecha):""}</span></button>`;
 }
+/* ---------- Agenda: qué hacer cada día ---------- */
+const tareasDe = d => state.agenda.filter(x=>x.fecha===d).sort((a,b)=>(a.ok-b.ok)||(a.orden||0)-(b.orden||0));
+const atrasadas = () => state.agenda.filter(x=>!x.ok && x.fecha<hoy());
+function filaTarea(x, conFecha){
+  return `<div class="todo ${x.ok?"on":""}"><button class="tk" data-a="tareaOk" data-id="${x.id}" aria-pressed="${!!x.ok}" aria-label="${x.ok?"Desmarcar":"Marcar como hecha"}"><span class="box">${ICON.check}</span></button>
+    <button class="tt" data-a="tareaEdit" data-id="${x.id}">${esc(x.t)}${conFecha?`<small>${esc(fmtDiaLargo(x.fecha))}</small>`:""}</button></div>`;
+}
+function listaTareas(d, ph){
+  const ts = tareasDe(d);
+  return `${ts.length?`<div class="todos">${ts.map(x=>filaTarea(x)).join("")}</div>`:""}
+    <form class="qadd" data-f="tareaAdd" data-d="${d}"><input name="t" autocomplete="off" enterkeyhint="done" placeholder="${esc(ph||"Añadir algo que hacer…")}" aria-label="Nueva tarea para ${esc(fmtDiaLargo(d))}"><button aria-label="Añadir">${ICON.plus}</button></form>`;
+}
+function bloqueHoyAgenda(){
+  const ts = tareasDe(hoy()), hechas = ts.filter(x=>x.ok).length, at = atrasadas();
+  return `<section class="card"><div class="sec-head"><h2>Para hoy</h2><span class="muted small">${ts.length?`${hechas}/${ts.length}`:""}</span></div>
+    ${at.length?`<div class="atraso"><span>${at.length===1?"Te quedó 1 cosa de otro día":`Te quedaron ${at.length} cosas de otros días`}</span><button class="btn" data-a="traerHoy" style="padding:7px 11px">Pasar a hoy</button></div>`:""}
+    ${listaTareas(hoy(), ts.length?"Añadir otra…":"¿Qué tienes que hacer hoy?")}
+    <button class="btn ghost" data-a="verAgenda" style="align-self:flex-start;padding:0">Ver la agenda de la semana →</button></section>`;
+}
+function vistaAgenda(){
+  const ini = ui.semana, fin = addDays(ini,6), hoyS = hoy(), map = porDia();
+  const esEsta = iso(ini)===iso(lunes(new Date()));
+  const f = d => new Intl.DateTimeFormat("es-ES",{day:"numeric", month:"short"}).format(d);
+  let h = `<div class="cal-nav"><div><b>${esEsta?"Esta semana":"Semana"}</b> <span class="muted small">${f(ini)} – ${f(fin)}</span></div>
+    <div class="btns"><button class="iconbtn" data-a="semAg" data-d="-1" aria-label="Semana anterior">${ICON.prev}</button><button class="btn" data-a="semAgHoy" style="padding:8px 12px">Hoy</button><button class="iconbtn" data-a="semAg" data-d="1" aria-label="Semana siguiente">${ICON.next}</button></div></div>`;
+  for (let i=0;i<7;i++){
+    const ds = iso(addDays(ini,i)), x = map[ds] || {cosas:[], ejer:[]};
+    const ts = tareasDe(ds), hechas = ts.filter(t=>t.ok).length;
+    const ctx = x.cosas.map(c=>`<button data-a="${c.k==="evento"?"editEvento":"ver"}" data-tipo="${c.k}" data-id="${c.o.id}"><i style="background:${c.color}"></i><span>${c.k==="exam"?"Examen: ":c.k==="trab"?"Entrega: ":""}${esc(c.t)}${c.k==="evento"&&c.o.hora?` · ${esc(c.o.hora)}`:""}</span></button>`).join("");
+    h += `<section class="card ag-day ${ds===hoyS?"today":ds<hoyS?"past":""}"><div class="ag-head"><h2>${esc(fmtDiaLargo(ds))}${ds===hoyS?'<span class="pill">Hoy</span>':""}</h2><span class="muted small">${ts.length?`${hechas}/${ts.length}`:""}</span></div>
+      ${ctx?`<div class="ag-ctx">${ctx}</div>`:""}
+      ${listaTareas(ds)}</section>`;
+  }
+  return h;
+}
+function formTarea(id){
+  const x = state.agenda.find(t=>t.id===id); if (!x) return;
+  abrir(`<h2>Editar</h2><form data-f="tareaEdit" data-id="${id}" style="display:flex;flex-direction:column;gap:14px">
+    <div class="field"><label for="f-tt">Qué hay que hacer</label><input id="f-tt" required value="${esc(x.t)}"></div>
+    <div class="field"><label for="f-tf">Día</label><input id="f-tf" type="date" required value="${x.fecha}"></div>
+    <div class="actions"><button class="btn primary">Guardar</button><button type="button" class="btn" data-a="tareaManana" data-id="${id}">Pasar al día siguiente</button>${botonBorrar("tarea",id)}</div></form>`);
+}
+
 function vistaCal(){
   const m = ui.mes, map = porDia(), hoyS = hoy();
-  let h = cabecera("Calendario", fmtMes(m));
+  let h = cabecera("Calendario", ui.calVista==="semana" ? "Agenda" : fmtMes(m));
+  h += `<div class="seg" role="tablist">${[["semana","Agenda"],["mes","Mes"]].map(([k,l])=>`<button class="${ui.calVista===k?"on":""}" data-a="calVista" data-v="${k}" role="tab" aria-selected="${ui.calVista===k}">${l}</button>`).join("")}</div>`;
+  if (ui.calVista==="semana") return h + vistaAgenda();
   h += `<div class="cal-nav"><div class="legend"><span><i class="big"></i>Examen</span><span><i></i>Trabajo o plan</span><span><i class="dot" style="background:#3E7CE0"></i>Ejercicio</span></div>
     <div class="btns"><button class="iconbtn" data-a="mes" data-d="-1" aria-label="Mes anterior">${ICON.prev}</button><button class="btn" data-a="mesHoy" style="padding:8px 12px">Hoy</button><button class="iconbtn" data-a="mes" data-d="1" aria-label="Mes siguiente">${ICON.next}</button></div></div>`;
   const ini = lunes(m), finMes = new Date(m.getFullYear(), m.getMonth()+1, 0);
@@ -1387,6 +1460,7 @@ function vistaCal(){
       <span class="dn">${d.getDate()}</span>
       ${vis.map(c=>`<span class="lbl ${c.k==="exam"?"exam":""}" style="background:${c.color};${c.o.hecho?"opacity:.45":""}">${c.k==="exam"?"Ex. ":""}${esc(c.t)}</span>`).join("")}
       ${x.cosas.length>3?`<span class="more">+${x.cosas.length-3}</span>`:""}
+      ${(()=>{ const ts = state.agenda.filter(t=>t.fecha===ds); return ts.length?`<span class="more">${ts.filter(t=>t.ok).length}/${ts.length} ✓</span>`:""; })()}
       ${ejColores.length?`<span class="ex">${ejColores.map(c=>`<i style="background:${c}"></i>`).join("")}</span>`:""}</button>`;
   }
   h += `<div class="cal">${celdas}</div>`;
@@ -1394,7 +1468,8 @@ function vistaCal(){
   const habs = state.habitos.filter(hb=>(state.marcas[hb.id]||[]).includes(ui.dia));
   const lista = x.cosas.map(c=> c.k==="evento" ? itemEvento(c.o) : itemPendiente({tipo:c.k, o:c.o})).join("") + x.ejer.map(r=>itemRegistro(r,false)).join("");
   h += `<section class="card"><div class="sec-head"><h2>${fmtDiaLargo(ui.dia)}</h2><button class="btn primary" data-a="nuevoEvento" data-d="${ui.dia}">${ICON.plus}Plan</button></div>
-    ${lista ? `<div class="list">${lista}</div>` : `<div class="empty">Nada este día. Puedes apuntar un plan, un cumpleaños o una cita.</div>`}
+    ${lista ? `<div class="list">${lista}</div>` : (tareasDe(ui.dia).length ? "" : `<div class="empty">Nada este día. Puedes apuntar un plan, un cumpleaños o una cita.</div>`)}
+    <h3 style="margin:4px 0 -4px;font-size:14px;color:var(--ink-2)">Qué hacer</h3>${listaTareas(ui.dia)}
     ${habs.length?`<p class="muted small" style="margin:0">Hábitos cumplidos: ${habs.map(hb=>esc(hb.nombre)).join(", ")}</p>`:""}</section>`;
   return h;
 }
@@ -1605,6 +1680,20 @@ document.addEventListener("click", ev => {
   if (a!=="borrar") ui.armado = null;
   switch(a){
     case "cuenta": formCuenta(); break;
+    case "calVista": ui.calVista = el.dataset.v; try{localStorage.setItem("sinapsis-calvista",ui.calVista);}catch{} if (ui.calVista==="semana") { ui.semana = lunes(new Date()); ui.irHoy = true; } render(); break;
+    case "verAgenda": ui.tab = "cal"; ui.calVista = "semana"; ui.semana = lunes(new Date()); try{localStorage.setItem("sinapsis-tab","cal");localStorage.setItem("sinapsis-calvista","semana");}catch{} scrollTo(0,0); ui.irHoy = true; render(); break;
+    case "semAg": ui.semana = addDays(ui.semana, 7*Number(el.dataset.d)); render(); break;
+    case "semAgHoy": ui.semana = lunes(new Date()); ui.irHoy = true; render(); break;
+    case "tareaOk": { const x = state.agenda.find(t=>t.id===id); if (!x) break;
+      x.ok = !x.ok; if (x.ok) anotar("tarea", id, x.fecha); else desanotar("tarea", id);
+      const ts = state.agenda.filter(t=>t.fecha===x.fecha);
+      commit();
+      if (x.ok && ts.length>1 && ts.every(t=>t.ok)) { confeti(); toast(x.fecha===hoy() ? "Todo lo de hoy, hecho" : "Día completado", "Qué bien te organizas."); }
+      break; }
+    case "tareaEdit": formTarea(id); break;
+    case "tareaManana": { const x = state.agenda.find(t=>t.id===id); if (!x) break;
+      x.fecha = iso(addDays(parse(x.fecha),1)); x.ok = false; desanotar("tarea", id); commit(); cerrar(); toast("Pasada al día siguiente", fmtDiaLargo(x.fecha)); break; }
+    case "traerHoy": { const at = atrasadas(); at.forEach(t=>t.fecha = hoy()); commit(); toast(at.length===1?"Pasada a hoy":"Pasadas a hoy", ""); break; }
     case "salir": salir(); break;
     case "olvide": olvide(); break;
     case "usarCuenta": resolverConflicto(true); break;
@@ -1678,6 +1767,7 @@ document.addEventListener("click", ev => {
       if (tipo==="exam") state.examenes = state.examenes.filter(x=>x.id!==id);
       if (tipo==="tarjeta") state.tarjetas = state.tarjetas.filter(x=>x.id!==id);
       if (tipo==="evento") state.eventos = state.eventos.filter(x=>x.id!==id);
+      if (tipo==="tarea") { state.agenda = state.agenda.filter(x=>x.id!==id); desanotar("tarea", id); }
       if (tipo==="reg") { state.ejercicio.registros = state.ejercicio.registros.filter(x=>x.id!==id); desanotar("ejer", id); }
       if (tipo==="tipo") { const ids = state.ejercicio.registros.filter(x=>x.tipo===id).map(x=>x.id);
         ids.forEach(r=>desanotar("ejer", r)); state.ejercicio.registros = state.ejercicio.registros.filter(x=>x.tipo!==id);
@@ -1693,6 +1783,12 @@ document.addEventListener("submit", ev => {
   ev.preventDefault();
   const v = id => (document.getElementById(id)?.value ?? "").trim();
   const id = f.dataset.id, k = f.dataset.f;
+  if (k==="tareaAdd"){ const inp = f.querySelector("input"), t = inp.value.trim(), d = f.dataset.d; if (!t) return;
+    state.agenda.push({id:uid(), fecha:d, t, ok:false, orden:Date.now()}); commit();
+    document.querySelector(`form[data-f="tareaAdd"][data-d="${d}"] input`)?.focus({preventScroll:true}); return; }
+  if (k==="tareaEdit"){ const x = state.agenda.find(t=>t.id===id); if (!x || !v("f-tt") || !v("f-tf")) return;
+    if (x.fecha !== v("f-tf")) x.orden = Date.now();
+    x.t = v("f-tt"); x.fecha = v("f-tf"); commit(); cerrar(); toast("Guardado"); return; }
   if (k==="login"){ const b = ev.submitter; if (b) b.disabled = true;
     entrar(v("f-email"), document.getElementById("f-clave").value, b && b.value==="up").finally(()=>{ if (b) b.disabled = false; }); return; }
   if (k==="nuevaClave"){ sb.auth.updateUser({ password: document.getElementById("f-clave").value }).then(({error}) => {
@@ -1770,6 +1866,8 @@ function render(){
     .map(([k,l])=>`<button data-a="tab" data-tab="${k}" class="${ui.tab===k?"on":""}" ${ui.tab===k?'aria-current="page"':""}>${ICON[k]}${l}</button>`).join("");
   pintarSync();
   if (ui.tab==="prog") dibujarRed(); else cancelAnimationFrame(netAnim);
+  // Al abrir la agenda de esta semana, ir directo al día de hoy.
+  if (ui.irHoy) { ui.irHoy = false; const c = document.querySelector(".ag-day.today"); if (c && c.previousElementSibling && c.previousElementSibling.classList.contains("ag-day")) scrollTo(0, c.getBoundingClientRect().top + scrollY - 16); }
 }
 addEventListener("resize", () => { if (ui.tab==="prog") dibujarRed(); });
 try { localStorage.removeItem("sinapsis-faceid"); } catch {}

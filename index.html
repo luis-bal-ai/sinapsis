@@ -390,6 +390,7 @@ nav.tabs button.on{color:var(--accent);background:var(--accent-soft)}
 .todo.on .txt{color:var(--ink-3);text-decoration:line-through}
 .bj{display:flex;align-items:center;gap:8px;border-top:1px solid var(--line)}
 .bj .todo{border-top:0}
+.todos > .bj:first-child{border-top:0}
 .qadd{display:flex;gap:8px;align-items:center}
 .qadd input{flex:1;min-width:0;border:1.5px dashed var(--line);background:transparent;border-radius:12px;padding:10px 12px;font-size:16px}
 .qadd input:focus{border-style:solid;border-color:var(--accent);outline:0;background:var(--surface-2)}
@@ -466,13 +467,22 @@ nav.tabs button.on{color:var(--accent);background:var(--accent-soft)}
 .durs .chip{padding:6px 11px;font-size:13px}
 .durs .chip.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
 .ft[data-cuando="bandeja"] .si-dia,.ft:not([data-cuando="hora"]) .si-hora{display:none!important}
-.ft select{width:100%;border:1.5px solid var(--line);background:var(--surface-2);border-radius:12px;padding:11px 12px;font-size:16px}
+.ft select,#f-asig{width:100%;border:1.5px solid var(--line);background:var(--surface-2);border-radius:12px;padding:11px 12px;font-size:16px}
 .rdias{display:flex;gap:6px;margin-top:6px}
 .rdias label{flex:1}
 .rdias input{position:absolute;opacity:0;pointer-events:none}
 .rdias span{display:grid;place-items:center;height:38px;border-radius:11px;background:var(--surface-2);font-weight:700;font-size:14px;color:var(--ink-2)}
 .rdias input:checked + span{background:var(--accent);color:var(--accent-ink)}
 .rdias input:focus-visible + span{outline:2px solid var(--accent)}
+nav.tabs button[data-tab="pend"]{display:none}
+.pend-mini{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px 16px;border:0;border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow);text-align:left;width:100%}
+.pend-mini .ic{width:40px;height:40px;border-radius:13px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
+.pend-mini .ic svg{width:22px;height:22px}
+.pend-mini b{display:block}
+.pend-mini span span{font-size:13px;color:var(--ink-3)}
+.pend-mini i{font-style:normal;color:var(--ink-3)}
+.bj .iconbtn{flex:none;width:34px;height:34px;color:var(--ink-3)}
+.bj .iconbtn svg{width:17px;height:17px}
 .atraso{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:var(--surface-2);font-size:14px}
 .addline input{flex:1;min-width:0;border:1.5px solid var(--line);background:var(--surface-2);border-radius:12px;padding:10px 12px;font-size:16px}
 .detail-head{display:flex;flex-direction:column;gap:6px}
@@ -494,6 +504,8 @@ nav.tabs button.on{color:var(--accent);background:var(--accent-soft)}
   nav.tabs .in{height:100%;max-width:none;display:flex;flex-direction:column;gap:4px;padding:14px;border-radius:26px}
   nav.tabs .in::before{content:"Sinapsis";font-family:var(--f-display);font-weight:800;font-size:24px;letter-spacing:-.02em;color:var(--ink);padding:6px 12px 18px}
   nav.tabs button{flex-direction:row;justify-content:flex-start;gap:12px;padding:12px 14px;font-size:15px;border-radius:16px}
+  nav.tabs button[data-tab="pend"]{display:flex}
+  .solo-movil{display:none!important}
   nav.tabs button:hover:not(.on){background:var(--surface-2);color:var(--ink-2)}
   .scrim{align-items:center;padding:32px 32px 32px 272px}
   .sheet{max-width:600px;max-height:88vh;border-radius:24px;padding:14px 26px 26px}
@@ -578,6 +590,7 @@ function cara(v){ const boca = {1:"M11 24 Q17 18 23 24",2:"M11 23 Q17 20.5 23 23
 const PRESETS = [{id:"p25", foco:25, desc:5, n:"Clásico"},{id:"p50", foco:50, desc:10, n:"Largo"},{id:"p15", foco:15, desc:3, n:"Rápido"}];
 const INTERVALOS = [0,1,3,7,14,30,60,120]; // días hasta el siguiente repaso según la caja
 const ICON = {
+  pend:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2"/><circle cx="5" cy="18" r="1.2"/></svg>',
   check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
   flame:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-4 1-6.5 1-9.5z"/></svg>',
   plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
@@ -955,6 +968,7 @@ function vistaHoy(){
       <div class="meta"><span>${e.temas.filter(t=>t.ok).length} de ${e.temas.length} temas</span><div class="bar"><i style="width:${Math.round(p*100)}%"></i></div></div></button>`;
   }
   h += bloqueHoyAgenda();
+  h += bloquePendHoy();
   h += `<section class="card"><div class="sec-head"><h2>Esta semana</h2><button class="btn ghost" data-a="tab" data-tab="uni">Ver todo</button></div>
     ${semana.length||planes.length ? `<div class="list">${[...semana.map(p=>({f:p.o.fecha, h:itemPendiente(p)})), ...planes.map(v=>({f:v.fecha, h:itemEvento(v)}))].sort((a,b)=>a.f.localeCompare(b.f)).map(x=>x.h).join("")}</div>` : `<div class="empty">Nada en los próximos 7 días.</div>`}</section>`;
   const am = state.animo[hoy()];
@@ -991,6 +1005,11 @@ function vistaUni(){
     .sort((a,b)=>b.o.fecha.localeCompare(a.o.fecha));
   h += `<section class="card"><div class="sec-head"><h2>Pendiente</h2><span class="muted small">${pend.length}</span></div>
     ${pend.length ? `<div class="list">${pend.map(itemPendiente).join("")}</div>` : `<div class="empty">${state.asignaturas.length ? "Todo al día. Añade un trabajo o un examen cuando te lo manden." : "Empieza añadiendo tus asignaturas."}</div>`}</section>`;
+  const sinF = enBandeja().filter(x=>!x.ok && (ui.asig==="todas" ? catDe(x) : catDe(x)===ui.asig));
+  h += `<section class="card"><div class="sec-head"><h2>Sin fecha</h2><button class="btn ghost" data-a="verPend" style="padding:0">Ver todos →</button></div>
+    ${sinF.length ? `<div class="todos">${sinF.map(filaPend).join("")}</div>` : ""}
+    ${ui.asig!=="todas" ? `<form class="qadd" data-f="pendAdd" data-asig="${ui.asig}"><input name="t" autocomplete="off" enterkeyhint="done" placeholder="Algo pendiente de ${esc(asig(ui.asig).nombre)}…" aria-label="Nuevo pendiente"><button aria-label="Añadir">${ICON.plus}</button></form>`
+      : (sinF.length ? "" : `<p class="muted small" style="margin:0">Elige una asignatura arriba para apuntarle cosas pendientes sin fecha.</p>`)}</section>`;
   if (hechos.length) h += `<section class="card"><details><summary>Hecho (${hechos.length})</summary><div class="list" style="margin-top:8px">${hechos.map(itemPendiente).join("")}</div></details></section>`;
   return h;
 }
@@ -1550,7 +1569,7 @@ function bloqueHoyAgenda(){
 function vistaAgenda(){
   const d = ui.agDia, hoyS = hoy(), ini = lunes(parse(d));
   const nb = enBandeja().filter(x=>!x.ok).length;
-  let h = `<div class="cal-nav"><button class="btn" data-a="bandeja">${ICON.uni}Bandeja${nb?` <span class="cnt">${nb}</span>`:""}</button>
+  let h = `<div class="cal-nav"><button class="btn" data-a="verPend">${ICON.pend}Pendientes${nb?` <span class="cnt">${nb}</span>`:""}</button>
     <div class="btns"><button class="iconbtn" data-a="semAg" data-d="-1" aria-label="Semana anterior">${ICON.prev}</button><button class="btn" data-a="semAgHoy" style="padding:8px 12px">Hoy</button><button class="iconbtn" data-a="semAg" data-d="1" aria-label="Semana siguiente">${ICON.next}</button></div></div>`;
   h += `<div class="wk" role="tablist">${Array.from({length:7},(_,i)=>{ const dd = addDays(ini,i), ds = iso(dd), ts = tareasDe(ds), pend = ts.filter(o=>!o.ok).length;
     return `<button class="${ds===d?"on":""} ${ds===hoyS?"today":""}" data-a="agDia" data-d="${ds}" role="tab" aria-selected="${ds===d}"><span>${DOW[i]}</span><b>${dd.getDate()}</b><i class="${ts.length?(pend?"p":"ok"):""}"></i></button>`; }).join("")}</div>`;
@@ -1632,6 +1651,39 @@ function abrirBandeja(refrescar){
 }
 const refrescarHoja = () => abrirBandeja(true);
 
+// ---------- Pendientes: cosas sin fecha que no se pueden olvidar ----------
+const catDe = x => state.asignaturas.some(a=>a.id===x.asig) ? x.asig : "";
+const haceCuanto = ms => { const d = Math.floor((Date.now()-ms)/864e5); return d<7 ? "" : d<14 ? "apuntado hace 1 semana" : d<60 ? `apuntado hace ${Math.floor(d/7)} semanas` : `apuntado hace ${Math.floor(d/30)} meses`; };
+function filaPend(x){
+  return `<div class="bj">${filaTarea({x, d:"", ok:!!x.ok}, x.ok ? "" : haceCuanto(x.orden||Date.now()))}${x.ok?"":`<button class="iconbtn" data-a="planificar" data-id="${x.id}" title="Pasar a un día" aria-label="Pasar ${esc(x.t)} a un día">${ICON.cal}</button>`}</div>`;
+}
+function vistaPend(){
+  const ts = enBandeja().sort((a,b)=>(a.orden||0)-(b.orden||0)), abiertas = ts.filter(x=>!x.ok), hechas = ts.filter(x=>x.ok);
+  const cats = [{id:"", nombre:"General", color:"var(--ink-3)"}, ...state.asignaturas];
+  if (!cats.some(c=>c.id===ui.pendCat)) ui.pendCat = "";
+  let h = `<button class="btn ghost solo-movil" data-a="tab" data-tab="${ui.volver||"hoy"}" style="align-self:flex-start;padding:0;margin-bottom:-8px">${ICON.prev.replace('<svg','<svg width="16" height="16"')}Volver</button>`;
+  h += cabecera("Sin fecha", "Pendientes");
+  h += `<p class="muted" style="margin:-6px 0 0">Lo que no corre prisa pero no se te puede olvidar. Cuando sepas cuándo hacerlo, pásalo a un día con ${ICON.cal.replace('<svg','<svg width="14" height="14" style="vertical-align:-2px"')}.</p>`;
+  h += `<form class="card" data-f="pendAdd" style="gap:10px"><div class="qadd"><input name="t" autocomplete="off" enterkeyhint="done" placeholder="¿Qué no se te puede olvidar?" aria-label="Nuevo pendiente"><button aria-label="Añadir">${ICON.plus}</button></div>
+    <div class="chips" role="radiogroup" aria-label="Dónde apuntarlo">${cats.map(c=>`<button type="button" class="chip ${ui.pendCat===c.id?"on":""}" data-a="pendCat" data-id="${c.id}" role="radio" aria-checked="${ui.pendCat===c.id}"><span class="dot" style="background:${c.color}"></span>${esc(c.nombre)}</button>`).join("")}</div></form>`;
+  const grupos = cats.map(c=>({c, xs:abiertas.filter(x=>catDe(x)===c.id)})).filter(g=>g.xs.length);
+  if (!grupos.length) h += `<div class="empty">No tienes nada pendiente. Apunta aquí cosas como “pedir revisión del examen”, “devolver el libro a la biblioteca” o “preguntar a la profe por el trabajo”.</div>`;
+  grupos.forEach(({c, xs}) => {
+    h += `<section class="card"><div class="sec-head"><h2 style="display:flex;align-items:center;gap:8px"><span class="dot" style="width:10px;height:10px;border-radius:50%;background:${c.color};display:inline-block"></span>${esc(c.nombre)}</h2><span class="muted small">${xs.length}</span></div>
+      <div class="todos">${xs.map(filaPend).join("")}</div></section>`;
+  });
+  if (hechas.length) h += `<section class="card"><details><summary>Hechas (${hechas.length})</summary><div class="todos" style="margin-top:8px">${hechas.map(filaPend).join("")}</div>
+    <button class="btn ghost" data-a="limpiarBandeja" style="padding:8px 0 0">Quitar las hechas</button></details></section>`;
+  return h;
+}
+function bloquePendHoy(){
+  const ab = enBandeja().filter(x=>!x.ok).sort((a,b)=>(a.orden||0)-(b.orden||0));
+  if (!ab.length) return `<button class="pend-mini" data-a="verPend"><span class="ic">${ICON.pend}</span><span><b>Pendientes</b><span>Apunta lo que no tiene fecha pero no quieres olvidar</span></span><i aria-hidden="true">→</i></button>`;
+  return `<section class="card"><div class="sec-head"><h2>Pendientes</h2><span class="muted small">sin fecha · ${ab.length}</span></div>
+    <div class="todos">${ab.slice(0,3).map(filaPend).join("")}</div>
+    <button class="btn ghost" data-a="verPend" style="align-self:flex-start;padding:0">${ab.length>3?`Ver los ${ab.length}`:"Abrir pendientes"} →</button></section>`;
+}
+
 // Formulario de tarea
 function formTarea(id, pre){
   pre = pre || {};
@@ -1647,7 +1699,8 @@ function formTarea(id, pre){
     <div class="field"><label for="f-tt">¿Qué vas a hacer?</label><input id="f-tt" required value="${esc(x.t)}" placeholder="Ej. Estudiar Psicobiología, gimnasio, comer…" autocomplete="off"></div>
     <div class="field"><label>Icono</label><div class="icos" role="radiogroup">${ICONOS.map(i=>`<button type="button" class="${i===(x.ico||"")?"on":""}" data-a="ico" data-i="${i}" role="radio" aria-checked="${i===x.ico}">${i}</button>`).join("")}</div><input type="hidden" id="f-ico" value="${esc(x.ico||"")}"><span class="muted small">Si no eliges, se pone uno según lo que escribas.</span></div>
     <div class="field"><label>Color</label>${swatches(x.color||COLORES[1])}</div>
-    <div class="field"><label>Cuándo</label><div class="seg three">${[["hora","Con hora"],["sin","Sin hora"],["bandeja","Bandeja"]].map(([k,l])=>`<button type="button" class="${cuando===k?"on":""}" data-a="cuando" data-v="${k}">${l}</button>`).join("")}</div><input type="hidden" id="f-cuando" value="${cuando}"></div>
+    <div class="field"><label>Cuándo</label><div class="seg three">${[["hora","Con hora"],["sin","Sin hora"],["bandeja","Sin fecha"]].map(([k,l])=>`<button type="button" class="${cuando===k?"on":""}" data-a="cuando" data-v="${k}">${l}</button>`).join("")}</div><input type="hidden" id="f-cuando" value="${cuando}"></div>
+    <div class="field"><label for="f-asig">Asignatura (opcional)</label><select id="f-asig"><option value="">General</option>${state.asignaturas.map(a=>`<option value="${a.id}" ${catDe(x)===a.id?"selected":""}>${esc(a.nombre)}</option>`).join("")}</select></div>
     <div class="field si-dia"><label for="f-tf">Día</label><input id="f-tf" type="date" value="${fecha}"></div>
     <div class="si-hora" style="display:flex;flex-direction:column;gap:14px">
       <div class="row2"><div class="field"><label for="f-th">Empieza</label><input id="f-th" type="time" step="300" value="${hora}"></div>
@@ -1938,7 +1991,8 @@ document.addEventListener("click", ev => {
     case "tareaEdit": formTarea(id, {d: el.dataset.d}); break;
     case "nuevaTarea": formTarea(null, {fecha: el.dataset.d || ui.agDia, hora: el.dataset.h || "", conHora: true}); break;
     case "planificar": formTarea(id, {planificar: true}); break;
-    case "bandeja": abrirBandeja(); break;
+    case "bandeja": case "verPend": ui.volver = ui.tab==="pend" ? (ui.volver||"hoy") : ui.tab; ui.tab = "pend"; try{localStorage.setItem("sinapsis-tab","pend");}catch{} render(); scrollTo(0,0); break;
+    case "pendCat": ui.pendCat = id || ""; el.parentElement.querySelectorAll(".chip").forEach(c=>{ c.classList.toggle("on", c===el); c.setAttribute("aria-checked", c===el); }); el.closest("form")?.querySelector("input")?.focus(); break;
     case "limpiarBandeja": state.agenda = state.agenda.filter(x=>x.fecha || !x.ok); commit(); refrescarHoja(); break;
     case "diaCfg": formDiaCfg(); break;
     case "ico": document.getElementById("f-ico").value = el.dataset.i; el.parentElement.querySelectorAll("button").forEach(b=>{ b.classList.toggle("on", b===el); b.setAttribute("aria-checked", b===el); }); break;
@@ -2040,6 +2094,10 @@ document.addEventListener("submit", ev => {
   ev.preventDefault();
   const v = id => (document.getElementById(id)?.value ?? "").trim();
   const id = f.dataset.id, k = f.dataset.f;
+  if (k==="pendAdd"){ const inp = f.querySelector("input"), t = inp.value.trim(); if (!t) return;
+    const cat = f.dataset.asig !== undefined ? f.dataset.asig : (ui.pendCat || "");
+    state.agenda.push({id:uid(), fecha:null, asig:cat, t, ok:false, orden:Date.now(), hora:"", dur:30, ico:autoIco(t), color:cat ? asig(cat).color : COLORES[7], subs:[], notas:"", rep:null}); commit();
+    document.querySelector(f.dataset.asig !== undefined ? `#app form[data-f="pendAdd"][data-asig="${cat}"] input` : '#app form[data-f="pendAdd"]:not([data-asig]) input')?.focus({preventScroll:true}); return; }
   if (k==="tareaAdd"){ const inp = f.querySelector("input"), t = inp.value.trim(), d = f.dataset.d; if (!t) return;
     state.agenda.push({id:uid(), fecha:d||null, t, ok:false, orden:Date.now(), hora:"", dur:30, ico:autoIco(t), color:COLORES[1], subs:[], notas:"", rep:null}); commit();
     if (!d) { refrescarHoja(); document.querySelector(".sheet form[data-f='tareaAdd'] input")?.focus({preventScroll:true}); return; }
@@ -2053,11 +2111,11 @@ document.addEventListener("submit", ev => {
     if (rp && !rp.length) rp = null;
     const viejo = state.agenda.find(z=>z.id===id);
     const subs = v("f-subs").split("\n").map(z=>z.trim()).filter(Boolean).map(z=>{ const o = viejo && (viejo.subs||[]).find(q=>q.t===z); return {id:o?o.id:uid(), t:z, ok:o?o.ok:false}; });
-    const datos = {t, ico: v("f-ico") || autoIco(t), color: v("f-color") || COLORES[1], fecha, hora, dur, rep: rp, subs, notas: v("f-notas")};
+    const datos = {t, asig: v("f-asig"), ico: v("f-ico") || autoIco(t), color: v("f-color") || COLORES[1], fecha, hora, dur, rep: rp, subs, notas: v("f-notas")};
     if (viejo) { if (viejo.fecha!==fecha) datos.orden = Date.now(); if (!viejo.rep && rp) datos.hechos = []; Object.assign(viejo, datos); }
     else state.agenda.push({id:uid(), ok:false, orden:Date.now(), hechos:[], saltar:[], ...datos});
     if (fecha && ui.tab==="cal" && ui.calVista==="semana") ui.agDia = fecha;
-    commit(); cerrar(); toast(viejo ? "Guardado" : (fecha ? "Apuntado" : "A la bandeja"), hora ? `${fmtDiaLargo(fecha)} · ${hora}` : ""); return; }
+    commit(); cerrar(); toast(viejo ? "Guardado" : (fecha ? "Apuntado" : "Guardado en Pendientes"), hora ? `${fmtDiaLargo(fecha)} · ${hora}` : ""); return; }
   if (k==="diaCfg"){ state.diaCfg = {despertar: v("f-des") || "08:00", dormir: v("f-dor") || "23:30"}; commit(); cerrar(); toast("Guardado"); return; }
   if (k==="login"){ const b = ev.submitter; if (b) b.disabled = true;
     entrar(v("f-email"), document.getElementById("f-clave").value, b && b.value==="up").finally(()=>{ if (b) b.disabled = false; }); return; }
@@ -2131,11 +2189,11 @@ function pintarSync(){
   if (!CUENTA_ACTIVA) el.removeAttribute("data-a");
 }
 function render(){
-  const vistas = {hoy:vistaHoy, uni:vistaUni, cal:vistaCal, hab:vistaHabitos, ejer:vistaEjer, prog:vistaProgreso};
+  const vistas = {hoy:vistaHoy, uni:vistaUni, cal:vistaCal, pend:vistaPend, hab:vistaHabitos, ejer:vistaEjer, prog:vistaProgreso};
   if (!vistas[ui.tab]) ui.tab = "hoy";
   document.getElementById("app").innerHTML = vistas[ui.tab]();
-  document.getElementById("tabs").innerHTML = [["hoy","Hoy"],["uni","Uni"],["cal","Calendario"],["hab","Hábitos"],["ejer","Ejercicio"],["prog","Progreso"]]
-    .map(([k,l])=>`<button data-a="tab" data-tab="${k}" class="${ui.tab===k?"on":""}" ${ui.tab===k?'aria-current="page"':""}>${ICON[k]}${l}</button>`).join("");
+  document.getElementById("tabs").innerHTML = [["hoy","Hoy"],["uni","Uni"],["cal","Calendario"],["pend","Pendientes"],["hab","Hábitos"],["ejer","Ejercicio"],["prog","Progreso"]]
+    .map(([k,l])=>`<button data-a="tab" data-tab="${k}" class="${ui.tab===k || (k===(ui.volver||"hoy") && ui.tab==="pend" && innerWidth<1024)?"on":""}" ${ui.tab===k?'aria-current="page"':""}>${ICON[k]}${l}</button>`).join("");
   pintarSync();
   if (ui.tab==="prog") dibujarRed(); else cancelAnimationFrame(netAnim);
   // Al abrir la agenda de esta semana, ir directo al día de hoy.

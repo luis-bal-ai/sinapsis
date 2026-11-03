@@ -485,6 +485,29 @@ nav.tabs button.on{color:var(--accent);background:var(--accent-soft)}
 .toast b{font-family:var(--f-display);font-size:16px}
 .toast span{font-size:13px;opacity:.85}
 
+/* Ordenador: menú lateral, dos columnas y ventanas centradas. No afecta al móvil. */
+@media (min-width:1024px){
+  body{padding-left:272px;padding-right:40px}
+  .app{max-width:1120px;display:block;columns:2;column-gap:22px;padding-block:36px 48px}
+  .app > *{break-inside:avoid;margin:0 0 22px;width:100%}
+  .app > .top,.app > .seg,.app > .seg.three,.app > .cal-nav,.app > .wk,.app > .cal,.app > .chips,.app > .stages,.app > .net-wrap{column-span:all}
+  .app > .top{margin-bottom:26px}
+  h1{font-size:42px}
+  .seg{max-width:420px}
+  nav.tabs{top:0;bottom:0;left:0;right:auto;width:248px;padding:24px 0 24px 24px}
+  nav.tabs .in{height:100%;max-width:none;display:flex;flex-direction:column;gap:4px;padding:14px;border-radius:26px}
+  nav.tabs .in::before{content:"Sinapsis";font-family:var(--f-display);font-weight:800;font-size:24px;letter-spacing:-.02em;color:var(--ink);padding:6px 12px 18px}
+  nav.tabs button{flex-direction:row;justify-content:flex-start;gap:12px;padding:12px 14px;font-size:15px;border-radius:16px}
+  nav.tabs button:hover:not(.on){background:var(--surface-2);color:var(--ink-2)}
+  .scrim{align-items:center;padding:32px}
+  .sheet{max-width:600px;max-height:88vh;border-radius:24px;padding:14px 26px 26px}
+  .sheet .grab{display:none}
+  .toast{bottom:32px;left:calc(50% + 124px)}
+  .app > .fab{right:44px;bottom:40px;width:56px;margin:0}
+  .tl-row{grid-template-columns:52px 52px minmax(0,1fr) 36px}
+  .item:hover,.evrow:hover,.todo .tt:hover .txt,.tl-tt:hover b{color:var(--accent)}
+  .card{padding:20px}
+}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 @media (max-width:380px){h1{font-size:29px}.exam-hero .num{font-size:46px}.stages{grid-template-columns:repeat(2,1fr)}}
 </style>
@@ -1557,7 +1580,11 @@ function lineaTiempo(d){
   ancla("despertar", ini);
   let cursor = ini, ahoraPuesto = !esHoy;
   const ponerAhora = hasta => { if (!ahoraPuesto && n>=cursor && n<hasta) { filas.push({k:"now"}); ahoraPuesto = true; } };
-  const hueco = hasta => { if (hasta-cursor>=15) filas.push({k:"g", s:cursor, e:hasta}); else filas.push({k:"c"}); };
+  const hueco = hasta => {
+    let desde = cursor, yaEmpezado = false;
+    if (esHoy && n>desde) { if (n>=hasta) { filas.push({k:"c"}); return; } desde = n; yaEmpezado = true; }
+    if (hasta-desde>=15) filas.push({k:"g", s:desde, e:hasta, ahora:yaEmpezado}); else filas.push({k:"c"});
+  };
   items.forEach(it => {
     if (it.s>cursor){ ponerAhora(it.s); hueco(it.s); } else filas.push({k:"c"});
     filas.push(it);
@@ -1574,7 +1601,7 @@ function lineaTiempo(d){
     if (f.k==="c") return `<div class="tl-row tl-c"><span></span><span class="tl-line"></span></div>`;
     if (f.k==="now") return `<div class="tl-now"><span>${deMin(n)}</span><i></i></div>`;
     if (f.k==="g") { const dur = f.e-f.s;
-      return `<div class="tl-row tl-g"><span></span><span class="tl-line"></span><button class="tl-free" data-a="nuevaTarea" data-d="${d}" data-h="${deMin(Math.ceil(f.s/15)*15)}">${dur>=180?"Mucho tiempo libre":"Tiempo libre"} · ${fmtDur(dur)}<span>${ICON.plus}</span></button></div>`; }
+      return `<div class="tl-row tl-g"><span></span><span class="tl-line"></span><button class="tl-free" data-a="nuevaTarea" data-d="${d}" data-h="${deMin(Math.ceil(f.s/15)*15)}">${f.ahora?"Tienes libre ahora":dur>=180?"Mucho tiempo libre":"Tiempo libre"} · ${fmtDur(dur)}<span>${ICON.plus}</span></button></div>`; }
     if (f.k==="a") { const des = f.tipo==="despertar";
       return `<div class="tl-row"><span class="tl-time">${deMin(f.s)}</span><button class="tl-pill anc" data-a="diaCfg" aria-label="Cambiar hora">${des?"☀️":"🌙"}</button>
         <button class="tl-body" data-a="diaCfg"><b>${des?"Levantarse":"A dormir"}</b><span>${des?"Empieza el día":"Desconecta y descansa"}</span></button><span></span></div>`; }

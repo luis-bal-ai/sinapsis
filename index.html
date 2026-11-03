@@ -22,7 +22,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 <title>Sinapsis</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,500..800;1,9..144,400..700&family=Instrument+Sans:wght@400..700&display=swap">
 <style>
 /* Layout: app de móvil a una columna (máx. 560px), cabecera con saludo, tarjetas por bloque, barra de pestañas flotante abajo.
    Estilo: rosa chicle + lila sobre fondo rubor, toques lima, serif en cursiva para el nombre y las frases. */
@@ -38,6 +38,49 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   --f-serif:"Instrument Serif",Georgia,"Times New Roman",serif;
   --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
   --r:22px;
+}
+/* ===== Estilos que puede elegir Claudia ===== */
+/* Coquette: rosa ballet, crema y cereza; titulares en Fraunces, redondita y retro */
+:root[data-estilo="coquette"]{
+  --bg:#F6E3E5; --surface:#FFFAF8; --surface-2:#FBEDEE; --ink:#3A1E26; --ink-2:#6E4A53; --ink-3:#A5848D; --line:#F0D4D9;
+  --accent:#C93F62; --accent-ink:#FFFFFF; --accent-soft:#FADFE5;
+  --lilac:#B07A9E; --lilac-soft:#F4E4EE; --pop:#FFD3DC; --pop-ink:#3A1E26;
+  --ok:#3F9A7B; --ok-soft:#DDF1E8;
+  --hero:#4B1E2C; --hero-ink:#FFF3F5;
+  --blob1:rgba(201,63,98,.16); --blob2:rgba(255,190,165,.32);
+  --shadow:0 1px 2px rgba(110,30,50,.05),0 12px 32px rgba(180,60,90,.09);
+  --f-display:"Fraunces",Georgia,serif; --f-serif:"Fraunces",Georgia,serif; --f-body:"Instrument Sans",system-ui,-apple-system,sans-serif;
+  --w-h1:700; --h1-size:36px; --r:26px; --card-border:1px solid rgba(201,63,98,.10);
+  --calma:linear-gradient(135deg,#B07A9E,#C93F62 65%,#E77C8E);
+}
+/* Latte: beige, avena y rosa empolvado; minimal y elegante */
+:root[data-estilo="latte"]{
+  --bg:#EFE6DC; --surface:#FBF7F2; --surface-2:#F4ECE3; --ink:#2B211C; --ink-2:#5E5048; --ink-3:#9B8B7F; --line:#E5D8CA;
+  --accent:#A5636A; --accent-ink:#FFFFFF; --accent-soft:#F2E0DC;
+  --lilac:#8E9B7C; --lilac-soft:#E8ECDF; --pop:#EBD5B5; --pop-ink:#2B211C;
+  --ok:#5F8A6A; --ok-soft:#E2EDE3;
+  --hero:#3A2B24; --hero-ink:#FBF3EA;
+  --blob1:rgba(165,99,106,.12); --blob2:rgba(214,186,150,.30);
+  --shadow:0 1px 2px rgba(60,40,30,.05),0 8px 24px rgba(90,60,40,.06);
+  --f-display:"Instrument Sans",system-ui,sans-serif; --f-h1:"Instrument Serif",Georgia,serif; --f-serif:"Instrument Serif",Georgia,serif; --f-body:"Instrument Sans",system-ui,-apple-system,sans-serif;
+  --w-h1:400; --h1-size:44px; --r:18px; --card-border:1px solid #E9DDD0;
+  --calma:linear-gradient(135deg,#8E9B7C,#A5636A);
+}
+/* Fresa y matcha: verde salvia con rosa fresa; fresca y alegre */
+:root[data-estilo="matcha"]{
+  --bg:#E4EBDC; --surface:#FAFBF6; --surface-2:#EEF2E7; --ink:#1F2A1E; --ink-2:#4B5949; --ink-3:#879585; --line:#D6DFCB;
+  --accent:#D45F84; --accent-ink:#FFFFFF; --accent-soft:#F8E0E8;
+  --lilac:#6F8F5C; --lilac-soft:#E1EBD6; --pop:#F7C6D4; --pop-ink:#2A1018;
+  --ok:#5E8F4B; --ok-soft:#E1EED8;
+  --hero:#2C3A28; --hero-ink:#F5FAEF;
+  --blob1:rgba(212,95,132,.16); --blob2:rgba(140,175,110,.26);
+  --shadow:0 1px 2px rgba(30,50,25,.05),0 10px 28px rgba(60,90,50,.08);
+  --r:24px; --calma:linear-gradient(135deg,#6F8F5C,#D45F84);
+}
+@media (prefers-color-scheme: dark){
+  :root[data-estilo="coquette"]:not([data-theme="light"]){ --accent:#F27A97; --accent-soft:#4A2130; --lilac:#D7A3C6; --pop:#FFC2D0; --pop-ink:#3A1E26; --hero:#3A1622; --card-border:1px solid #3A2630 }
+  :root[data-estilo="latte"]:not([data-theme="light"]){ --bg:#1A1513; --surface:#241D1A; --surface-2:#2E2622; --line:#3A302A; --ink:#F4ECE4; --ink-2:#CDBFB3; --ink-3:#8F8075; --accent:#D6939A; --accent-ink:#2B1A1C; --accent-soft:#43292B; --lilac:#AEBB9B; --lilac-soft:#2C3226; --pop:#EBD5B5; --pop-ink:#2B211C; --hero:#2E2420; --card-border:1px solid #3A302A }
+  :root[data-estilo="matcha"]:not([data-theme="light"]){ --bg:#121811; --surface:#1B231A; --surface-2:#243023; --line:#2F3B2D; --ink:#EEF4E8; --ink-2:#C2CEBB; --ink-3:#83917F; --accent:#F08BAA; --accent-ink:#2A1018; --accent-soft:#44222F; --lilac:#9DBF86; --lilac-soft:#263222; --pop:#F7C6D4; --hero:#1F2B1C }
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --bg:#130F15; --surface:#1E1822; --surface-2:#29212E; --ink:#F7EEF5; --ink-2:#CBBCCA; --ink-3:#8F7F8E; --line:#352B39;
@@ -68,7 +111,7 @@ button{cursor:pointer}
 /* Cabecera */
 .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .eyebrow{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
-h1{font-family:var(--f-display);font-weight:800;font-size:34px;line-height:1.05;letter-spacing:-.025em;margin:4px 0 0;text-wrap:balance}
+h1{font-family:var(--f-h1,var(--f-display));font-weight:var(--w-h1,800);font-size:var(--h1-size,34px);line-height:1.05;letter-spacing:-.025em;margin:4px 0 0;text-wrap:balance}
 h1 em{font-family:var(--f-serif);font-style:italic;font-weight:400;font-size:1.18em;letter-spacing:-.01em;color:var(--accent)}
 h2{font-family:var(--f-display);font-weight:700;font-size:19px;letter-spacing:-.01em;margin:0}
 .sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
@@ -82,12 +125,12 @@ h2{font-family:var(--f-display);font-weight:700;font-size:19px;letter-spacing:-.
 .sync.on{color:var(--accent)}
 
 /* Tarjetas */
-.card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:16px;display:flex;flex-direction:column;gap:12px}
+.card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);border:var(--card-border,0);padding:16px;display:flex;flex-direction:column;gap:12px}
 .banner{background:var(--accent-soft);border-radius:var(--r);padding:12px 14px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .banner p{margin:0;font-size:14px;color:var(--ink);flex:1 1 220px}
 
 /* Cuenta atrás examen */
-.exam-hero{position:relative;overflow:hidden;background:radial-gradient(260px 200px at 100% 0%,rgba(238,63,126,.55),transparent 70%),radial-gradient(240px 200px at 0% 120%,rgba(139,124,246,.45),transparent 70%),var(--hero);color:var(--hero-ink);border-radius:var(--r);padding:18px;display:grid;grid-template-columns:1fr auto;gap:6px 16px;align-items:end;cursor:pointer;border:0;text-align:left;width:100%}
+.exam-hero{position:relative;overflow:hidden;background:radial-gradient(260px 200px at 100% 0%,color-mix(in srgb,var(--accent) 55%,transparent),transparent 70%),radial-gradient(240px 200px at 0% 120%,color-mix(in srgb,var(--lilac) 45%,transparent),transparent 70%),var(--hero);color:var(--hero-ink);border-radius:var(--r);padding:18px;display:grid;grid-template-columns:1fr auto;gap:6px 16px;align-items:end;cursor:pointer;border:0;text-align:left;width:100%}
 .exam-hero .eyebrow{color:color-mix(in srgb,var(--hero-ink) 65%,transparent)}
 .exam-hero h3{margin:2px 0 0;font-family:var(--f-display);font-size:20px;line-height:1.15;font-weight:700}
 .exam-hero .num{color:var(--pop);font-family:var(--f-display);font-weight:800;font-size:60px;line-height:.9;letter-spacing:-.03em;text-align:right;font-variant-numeric:tabular-nums}
@@ -143,7 +186,7 @@ details summary{cursor:pointer;color:var(--ink-2);font-weight:600;font-size:14px
 details summary::-webkit-details-marker{display:none}
 
 /* Progreso */
-.net-wrap{position:relative;border-radius:var(--r);overflow:hidden;background:radial-gradient(300px 220px at 90% 10%,rgba(238,63,126,.35),transparent 70%),var(--hero);aspect-ratio:4/3;max-width:100%}
+.net-wrap{position:relative;border-radius:var(--r);overflow:hidden;background:radial-gradient(300px 220px at 90% 10%,color-mix(in srgb,var(--accent) 35%,transparent),transparent 70%),var(--hero);aspect-ratio:4/3;max-width:100%}
 .net-wrap canvas{width:100%;height:100%;display:block}
 .net-cap{position:absolute;left:14px;bottom:12px;right:14px;color:var(--hero-ink);display:flex;justify-content:space-between;align-items:flex-end;gap:10px;pointer-events:none}
 .net-cap b{font-family:var(--f-display);font-size:30px;line-height:1;font-weight:800}
@@ -237,7 +280,7 @@ details summary::-webkit-details-marker{display:none}
 .seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:16px;background:var(--surface-2)}
 .seg button{border:0;background:none;border-radius:12px;padding:9px;font-weight:700;font-size:14px;color:var(--ink-3)}
 .seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
-.due{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px;border-radius:var(--r);background:radial-gradient(220px 160px at 100% 0%,rgba(238,63,126,.5),transparent 70%),var(--hero);color:var(--hero-ink)}
+.due{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px;border-radius:var(--r);background:radial-gradient(220px 160px at 100% 0%,color-mix(in srgb,var(--accent) 50%,transparent),transparent 70%),var(--hero);color:var(--hero-ink)}
 .due b{font-family:var(--f-display);font-size:40px;line-height:1;color:var(--pop);font-variant-numeric:tabular-nums}
 .due span{font-size:13px;opacity:.8}
 .due .btn{background:var(--pop);color:var(--pop-ink)}
@@ -292,7 +335,7 @@ details summary::-webkit-details-marker{display:none}
 
 /* Calma */
 .calma-btn{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px;border:0;border-radius:var(--r);width:100%;text-align:left;color:#fff;
-  background:radial-gradient(240px 180px at 100% 0%,rgba(212,242,90,.35),transparent 70%),linear-gradient(135deg,#6C5CE7,#B04BC8 60%,#EE3F7E)}
+  background:radial-gradient(240px 180px at 100% 0%,color-mix(in srgb,var(--pop) 35%,transparent),transparent 70%),var(--calma,linear-gradient(135deg,#6C5CE7,#B04BC8 60%,#EE3F7E))}
 .calma-btn b{font-family:var(--f-display);font-size:22px;display:block}
 .calma-btn span{font-size:13px;opacity:.9}
 .calma-btn i{font-style:normal;font-size:26px;font-weight:300}
@@ -483,6 +526,15 @@ nav.tabs button[data-tab="pend"]{display:none}
 .pend-mini i{font-style:normal;color:var(--ink-3)}
 .bj .iconbtn{flex:none;width:34px;height:34px;color:var(--ink-3)}
 .bj .iconbtn svg{width:17px;height:17px}
+.estilos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.est{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:12px;border-radius:16px;border:2px solid var(--line);background:var(--surface);text-align:left;min-width:0}
+.est.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.est .sw3{display:flex;margin-bottom:6px}
+.est .sw3 i{width:24px;height:24px;border-radius:50%;border:2px solid var(--surface);margin-right:-7px}
+.est .sw3 i:nth-child(1){background:var(--e0)}.est .sw3 i:nth-child(2){background:var(--e1)}.est .sw3 i:nth-child(3){background:var(--e2)}
+.est b{font-size:17px;line-height:1.15;color:var(--ink)}
+.est > span:last-child{font-size:12px;color:var(--ink-3);line-height:1.3}
+@media (min-width:1024px){.estilos{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .atraso{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:var(--surface-2);font-size:14px}
 .addline input{flex:1;min-width:0;border:1.5px solid var(--line);background:var(--surface-2);border-radius:12px;padding:10px 12px;font-size:16px}
 .detail-head{display:flex;flex-direction:column;gap:6px}
@@ -499,7 +551,7 @@ nav.tabs button[data-tab="pend"]{display:none}
 @media (min-width:1024px){
   body{padding-left:272px;padding-right:40px}
   .app{max-width:780px;padding-block:36px 56px;gap:20px}
-  h1{font-size:40px}
+  h1{font-size:calc(var(--h1-size,34px) + 6px)}
   nav.tabs{top:0;bottom:0;left:0;right:auto;width:248px;padding:24px 0 24px 24px}
   nav.tabs .in{height:100%;max-width:none;display:flex;flex-direction:column;gap:4px;padding:14px;border-radius:26px}
   nav.tabs .in::before{content:"Sinapsis";font-family:var(--f-display);font-weight:800;font-size:24px;letter-spacing:-.02em;color:var(--ink);padding:6px 12px 18px}
@@ -519,7 +571,7 @@ nav.tabs button[data-tab="pend"]{display:none}
   .item:hover .t,.evrow:hover .t,.todo .tt:hover .txt,.tl-tt:hover b{color:var(--accent)}
 }
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
-@media (max-width:380px){h1{font-size:29px}.exam-hero .num{font-size:46px}.stages{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:380px){h1{font-size:calc(var(--h1-size,34px) - 5px)}.exam-hero .num{font-size:46px}.stages{grid-template-columns:repeat(2,1fr)}}
 </style>
 
 <div class="app" id="app"></div>
@@ -900,7 +952,7 @@ function confeti(fuerte){
   if (!cv){ cv = document.createElement("canvas"); cv.id = "confeti"; document.body.appendChild(cv); }
   const dpr = window.devicePixelRatio||1, W = innerWidth, H = innerHeight;
   cv.width = W*dpr; cv.height = H*dpr; const ctx = cv.getContext("2d"); ctx.scale(dpr,dpr);
-  const cols = ["#EE3F7E","#8B7CF6","#D4F25A","#3BA4E8","#F59E42","#FFFFFF"];
+  const cssC = getComputedStyle(document.documentElement), cols = ["--accent","--lilac","--pop","--accent-soft","--ok"].map(v=>cssC.getPropertyValue(v).trim()).concat("#FFFFFF");
   const n = fuerte ? 160 : 90, ps = [];
   for (let i=0;i<n;i++){ const lado = i%2 ? 1 : -1;
     ps.push({x: lado>0 ? -10 : W+10, y: H*0.62, vx: -lado*(4+Math.random()*7)*-1, vy: -(9+Math.random()*9), r: 4+Math.random()*5,
@@ -967,6 +1019,8 @@ function vistaHoy(){
       <div><div class="num">${Math.max(n,0)}</div><div class="unit">${n===1?"día":"días"}</div></div>
       <div class="meta"><span>${e.temas.filter(t=>t.ok).length} de ${e.temas.length} temas</span><div class="bar"><i style="width:${Math.round(p*100)}%"></i></div></div></button>`;
   }
+  if (!state.estiloVisto) h += `<section class="card"><div class="sec-head"><h2>Nuevos estilos</h2><button class="btn ghost" data-a="estiloLuego" style="padding:0">Ahora no</button></div>
+    <p class="muted small" style="margin:-4px 0 0">Elige cómo quieres que se vea tu app. Puedes cambiarlo cuando quieras en Progreso.</p>${selectorEstilo()}</section>`;
   h += bloqueHoyAgenda();
   h += bloquePendHoy();
   h += `<section class="card"><div class="sec-head"><h2>Esta semana</h2><button class="btn ghost" data-a="tab" data-tab="uni">Ver todo</button></div>
@@ -1053,6 +1107,7 @@ function vistaProgreso(){
   const got = LOGROS.filter(l=>l.ok()).length;
   h += `<section class="card"><div class="sec-head"><h2>Logros</h2><span class="muted small">${got}/${LOGROS.length}</span></div>
     <div class="badges">${LOGROS.map(l=>{ const on=l.ok(); return `<div class="badge ${on?"on":""}"><span class="who">${esc(l.who)}</span><span class="n">${esc(l.n)}</span><span class="d">${esc(l.d)}</span></div>`; }).join("")}</div></section>`;
+  h += `<section class="card"><h2>Estilo de la app</h2>${selectorEstilo()}</section>`;
   if (CUENTA_ACTIVA) h += `<section class="card"><h2>Tu cuenta</h2>
     <p class="muted small" style="margin:0">${cuenta ? `Has entrado como <b>${esc(cuenta.email||"")}</b>. Tienes lo mismo en el móvil y en el ordenador.` : "Inicia sesión para tener tus cosas en el móvil y en el ordenador a la vez, y no perderlas nunca."}</p>
     <div class="actions"><button class="btn ${cuenta?"":"primary"}" data-a="cuenta">${cuenta?"Ver cuenta":"Iniciar sesión"}</button></div></section>`;
@@ -1645,7 +1700,7 @@ function abrirBandeja(refrescar){
     <form class="qadd" data-f="tareaAdd" data-d=""><input name="t" autocomplete="off" enterkeyhint="done" placeholder="Añadir a la bandeja…" aria-label="Añadir a la bandeja"><button aria-label="Añadir">${ICON.plus}</button></form>
     ${ts.some(x=>x.ok)?`<button class="btn ghost" data-a="limpiarBandeja" style="align-self:flex-start">Quitar las hechas</button>`:""}`;
   const sh = document.querySelector(".sheet[data-hoja='bandeja']");
-  if (refrescar && sh) { sh.innerHTML = `<div class="grab"></div>${html}`; return; }
+  if (refrescar && sh) { sh.innerHTML = tono(`<div class="grab"></div>${html}`); return; }
   if (refrescar) return;
   abrir(html); document.querySelector(".sheet")?.setAttribute("data-hoja","bandeja");
 }
@@ -1857,13 +1912,13 @@ function dibujarRed(){
 
 /* ---------- Hojas: detalle y formularios ---------- */
 function abrir(html){
-  document.getElementById("layer").innerHTML = `<div class="scrim" data-a="cerrarFondo"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div></div>`;
+  document.getElementById("layer").innerHTML = tono(`<div class="scrim" data-a="cerrarFondo"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div></div>`);
   ui.armado = null;
   document.querySelector(".sheet input:not([type=hidden]), .sheet textarea")?.focus({preventScroll:true});
 }
 function cerrar(){ document.getElementById("layer").innerHTML = ""; render(); }
 const optsAsig = sel => state.asignaturas.map(a=>`<option value="${a.id}" ${a.id===sel?"selected":""}>${esc(a.nombre)}</option>`).join("");
-const swatches = sel => `<div class="swatches" role="radiogroup">${COLORES.map(c=>`<button type="button" class="sw ${c===sel?"on":""}" style="background:${c}" data-a="color" data-c="${c}" aria-label="Color" aria-checked="${c===sel}" role="radio"></button>`).join("")}</div><input type="hidden" id="f-color" value="${sel}">`;
+const swatches = sel => `<div class="swatches" role="radiogroup">${COLORES.map(c=>`<button type="button" class="sw ${c===sel?"on":""}" style="background:${c}" data-a="color" data-c="${c.toLowerCase()}" aria-label="Color" aria-checked="${c===sel}" role="radio"></button>`).join("")}</div><input type="hidden" id="f-color" value="${String(sel).toLowerCase()}">`;
 const botonBorrar = (tipo,id) => `<button type="button" class="btn danger" data-a="borrar" data-tipo="${tipo}" data-id="${id}">Eliminar</button>`;
 
 function verTrabajo(id){
@@ -1972,6 +2027,8 @@ document.addEventListener("click", ev => {
   if (a!=="borrar") ui.armado = null;
   switch(a){
     case "cuenta": formCuenta(); break;
+    case "estilo": state.estilo = el.dataset.v; state.estiloVisto = true; commit(); break;
+    case "estiloLuego": state.estiloVisto = true; commit(); break;
     case "calVista": ui.calVista = el.dataset.v; try{localStorage.setItem("sinapsis-calvista",ui.calVista);}catch{} if (ui.calVista==="semana" && ui.agDia===hoy()) ui.irHoy = true; render(); break;
     case "verAgenda": ui.tab = "cal"; ui.calVista = "semana"; ui.agDia = hoy(); try{localStorage.setItem("sinapsis-tab","cal");localStorage.setItem("sinapsis-calvista","semana");}catch{} scrollTo(0,0); ui.irHoy = true; render(); break;
     case "abrirDia": ui.calVista = "semana"; ui.agDia = el.dataset.d; try{localStorage.setItem("sinapsis-calvista","semana");}catch{} scrollTo(0,0); ui.irHoy = ui.agDia===hoy(); render(); break;
@@ -2092,7 +2149,7 @@ document.addEventListener("click", ev => {
 document.addEventListener("submit", ev => {
   const f = ev.target.closest("form[data-f]"); if (!f) return;
   ev.preventDefault();
-  const v = id => (document.getElementById(id)?.value ?? "").trim();
+  const v = id => { const r = (document.getElementById(id)?.value ?? "").trim(); return id==="f-color" ? r.toUpperCase() : r; };
   const id = f.dataset.id, k = f.dataset.f;
   if (k==="pendAdd"){ const inp = f.querySelector("input"), t = inp.value.trim(); if (!t) return;
     const cat = f.dataset.asig !== undefined ? f.dataset.asig : (ui.pendCat || "");
@@ -2181,6 +2238,35 @@ document.addEventListener("change", ev => {
 document.addEventListener("keydown", e => { if (e.key==="Escape" && calmaVista){ abrirCalma(calmaVista==="menu"?null:"menu"); return; } });
 document.addEventListener("keydown", e => { if (e.key==="Escape" && document.querySelector(".scrim") && !ui.conflicto) { if (ui.sesion){ ui.sesion=null; state.tarjetas.forEach(t=>delete t.fallo); commit(); } cerrar(); } });
 
+/* ---------- Estilo de la app ---------- */
+const ESTILOS = [
+  {id:"coquette", n:"Coquette", d:"Rosa ballet, crema y cereza", c:["#F6E3E5","#C93F62","#4B1E2C"], f:"Fraunces"},
+  {id:"latte", n:"Latte", d:"Beige, avena y rosa empolvado", c:["#EFE6DC","#A5636A","#3A2B24"], f:"Instrument Serif"},
+  {id:"matcha", n:"Fresa y matcha", d:"Verde salvia con rosa fresa", c:["#E4EBDC","#D45F84","#2C3A28"], f:"Bricolage Grotesque"},
+  {id:"chicle", n:"Chicle", d:"El de siempre: rosa y lila", c:["#FBE1EC","#EE3F7E","#2B1631"], f:"Bricolage Grotesque"}
+];
+// Colores de asignaturas, hábitos y tareas adaptados a cada estilo (se guardan siempre los originales)
+const PALETAS = {
+  coquette:["#C93F62","#B07A9E","#7FA7C9","#5E9E86","#E39B6B","#B8333F","#A3B86C","#8A7479"],
+  latte:["#A5636A","#9A86A6","#7E99A8","#7F9A78","#C99A6B","#B5574F","#A8A86E","#8C7D73"],
+  matcha:["#D45F84","#9C84C8","#6FA3C7","#5E8F4B","#E8A25E","#D0574F","#9DBA5A","#7A8577"]
+};
+const RE_COLORES = new RegExp(COLORES.join("|"), "g");
+const tono = h => { const pal = PALETAS[state.estilo || "coquette"]; return pal ? h.replace(RE_COLORES, c => pal[COLORES.indexOf(c)]) : h; };
+function aplicarEstilo(){
+  const e = state.estilo || "coquette";
+  if (document.documentElement.dataset.estilo !== e) {
+    document.documentElement.dataset.estilo = e;
+    const m = document.querySelector('meta[name="theme-color"][media*="light"]'); const def = ESTILOS.find(x=>x.id===e);
+    if (m && def) m.setAttribute("content", def.c[0]);
+  }
+}
+function selectorEstilo(){
+  const act = state.estilo || "coquette";
+  return `<div class="estilos" role="radiogroup" aria-label="Estilo de la app">${ESTILOS.map(e=>`<button class="est ${act===e.id?"on":""}" data-a="estilo" data-v="${e.id}" role="radio" aria-checked="${act===e.id}" style="--e0:${e.c[0]};--e1:${e.c[1]};--e2:${e.c[2]}">
+    <span class="sw3"><i></i><i></i><i></i></span><b style="font-family:'${e.f}',serif">${esc(e.n)}</b><span>${esc(e.d)}</span></button>`).join("")}</div>`;
+}
+
 /* ---------- Render ---------- */
 function pintarSync(){
   const el = document.getElementById("sync"); if (!el) return;
@@ -2189,9 +2275,10 @@ function pintarSync(){
   if (!CUENTA_ACTIVA) el.removeAttribute("data-a");
 }
 function render(){
+  aplicarEstilo();
   const vistas = {hoy:vistaHoy, uni:vistaUni, cal:vistaCal, pend:vistaPend, hab:vistaHabitos, ejer:vistaEjer, prog:vistaProgreso};
   if (!vistas[ui.tab]) ui.tab = "hoy";
-  document.getElementById("app").innerHTML = vistas[ui.tab]();
+  document.getElementById("app").innerHTML = tono(vistas[ui.tab]());
   document.getElementById("tabs").innerHTML = [["hoy","Hoy"],["uni","Uni"],["cal","Calendario"],["pend","Pendientes"],["hab","Hábitos"],["ejer","Ejercicio"],["prog","Progreso"]]
     .map(([k,l])=>`<button data-a="tab" data-tab="${k}" class="${ui.tab===k || (k===(ui.volver||"hoy") && ui.tab==="pend" && innerWidth<1024)?"on":""}" ${ui.tab===k?'aria-current="page"':""}>${ICON[k]}${l}</button>`).join("");
   pintarSync();

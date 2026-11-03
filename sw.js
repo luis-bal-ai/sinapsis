@@ -1,6 +1,6 @@
 // Sinapsis: funciona sin conexión.
 // La página siempre intenta bajarse la versión nueva y, si no hay internet, usa la guardada.
-const CACHE = "sinapsis-v6";
+const CACHE = "sinapsis-v7";
 const BASE = ["./", "index.html", "manifest.json", "apple-touch-icon.png", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", e => {

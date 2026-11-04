@@ -391,10 +391,12 @@ details summary::-webkit-details-marker{display:none}
 /* Barra inferior */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;pointer-events:none;
   padding:0 max(12px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
-nav.tabs .in{pointer-events:auto;max-width:540px;margin:0 auto;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;padding:6px;border-radius:26px;
+nav.tabs .in{pointer-events:auto;max-width:540px;margin:0 auto;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;padding:6px;border-radius:26px;
   background:color-mix(in srgb,var(--surface) 82%,transparent);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);border:1px solid var(--line);box-shadow:var(--shadow)}
 nav.tabs button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 0 6px;font-size:10px;min-width:0;white-space:nowrap;font-weight:600;color:var(--ink-3);border-radius:20px;transition:background .2s,color .2s}
 nav.tabs button svg{width:22px;height:22px}
+nav.tabs .tl-lg{display:none}
+nav.tabs .tl-sh.apr{font-size:9px;letter-spacing:-.03em}
 nav.tabs button.on{color:var(--accent);background:var(--accent-soft)}
 
 /* Hoja inferior (formularios y detalle) */
@@ -517,7 +519,6 @@ nav.tabs button.on{color:var(--accent);background:var(--accent-soft)}
 .rdias span{display:grid;place-items:center;height:38px;border-radius:11px;background:var(--surface-2);font-weight:700;font-size:14px;color:var(--ink-2)}
 .rdias input:checked + span{background:var(--accent);color:var(--accent-ink)}
 .rdias input:focus-visible + span{outline:2px solid var(--accent)}
-nav.tabs button[data-tab="pend"]{display:none}
 .pend-mini{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px 16px;border:0;border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow);text-align:left;width:100%}
 .pend-mini .ic{width:40px;height:40px;border-radius:13px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
 .pend-mini .ic svg{width:22px;height:22px}
@@ -535,6 +536,21 @@ nav.tabs button[data-tab="pend"]{display:none}
 .est b{font-size:17px;line-height:1.15;color:var(--ink)}
 .est > span:last-child{font-size:12px;color:var(--ink-3);line-height:1.3}
 @media (min-width:1024px){.estilos{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.nota{position:relative;background:var(--pop);color:var(--pop-ink);border-radius:var(--r);padding:16px 16px 14px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow);transform:rotate(-.6deg);
+  background-image:repeating-linear-gradient(transparent 0 33px,color-mix(in srgb,var(--pop-ink) 9%,transparent) 33px 34px);background-position:0 12px}
+.nota::before{content:"";position:absolute;top:-9px;left:50%;width:74px;height:20px;margin-left:-37px;border-radius:3px;background:color-mix(in srgb,var(--surface) 70%,transparent);transform:rotate(2deg);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.nota h2{font-family:var(--f-serif);font-style:italic;font-weight:600;font-size:22px}
+.nota .small{opacity:.7}
+.nota .todo{border-top-color:color-mix(in srgb,var(--pop-ink) 12%,transparent)}
+.nota .todo .tt,.nota .todo .tt small{color:var(--pop-ink)}
+.nota .todo.on .txt{color:color-mix(in srgb,var(--pop-ink) 50%,transparent)}
+.nota .box{border-color:color-mix(in srgb,var(--pop-ink) 30%,transparent);background:color-mix(in srgb,var(--surface) 40%,transparent)}
+.nota .todo.on .box{background:var(--pop-ink);border-color:var(--pop-ink)}
+.nota .todo.on .box svg{color:var(--pop)}
+.nota .qadd input{border-color:color-mix(in srgb,var(--pop-ink) 25%,transparent);color:var(--pop-ink)}
+.nota .qadd input::placeholder{color:color-mix(in srgb,var(--pop-ink) 50%,transparent)}
+.nota .qadd input:focus{background:color-mix(in srgb,var(--surface) 45%,transparent);border-color:var(--pop-ink)}
+.nota .qadd button{background:var(--pop-ink);color:var(--pop)}
 .atraso{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:var(--surface-2);font-size:14px}
 .addline input{flex:1;min-width:0;border:1.5px solid var(--line);background:var(--surface-2);border-radius:12px;padding:10px 12px;font-size:16px}
 .detail-head{display:flex;flex-direction:column;gap:6px}
@@ -555,8 +571,10 @@ nav.tabs button[data-tab="pend"]{display:none}
   nav.tabs{top:0;bottom:0;left:0;right:auto;width:248px;padding:24px 0 24px 24px}
   nav.tabs .in{height:100%;max-width:none;display:flex;flex-direction:column;gap:4px;padding:14px;border-radius:26px}
   nav.tabs .in::before{content:"Sinapsis";font-family:var(--f-display);font-weight:800;font-size:24px;letter-spacing:-.02em;color:var(--ink);padding:6px 12px 18px}
+  nav.tabs .tl-lg{display:inline}
+  .nota{transform:rotate(-.25deg)}
+  nav.tabs .tl-sh{display:none}
   nav.tabs button{flex-direction:row;justify-content:flex-start;gap:12px;padding:12px 14px;font-size:15px;border-radius:16px}
-  nav.tabs button[data-tab="pend"]{display:flex}
   .solo-movil{display:none!important}
   nav.tabs button:hover:not(.on){background:var(--surface-2);color:var(--ink-2)}
   .scrim{align-items:center;padding:32px 32px 32px 272px}
@@ -1022,8 +1040,8 @@ function vistaHoy(){
   if (!state.estiloVisto) h += `<section class="card"><div class="sec-head"><h2>Nuevos estilos</h2><button class="btn ghost" data-a="estiloLuego" style="padding:0">Ahora no</button></div>
     <p class="muted small" style="margin:-4px 0 0">Elige cómo quieres que se vea tu app. Puedes cambiarlo cuando quieras en Progreso.</p>${selectorEstilo()}</section>`;
   h += bloqueHoyAgenda();
-  h += bloquePendHoy();
-  h += `<section class="card"><div class="sec-head"><h2>Esta semana</h2><button class="btn ghost" data-a="tab" data-tab="uni">Ver todo</button></div>
+  h += bloqueNota();
+  h += `<section class="card"><div class="sec-head"><h2>Próximos 7 días</h2><button class="btn ghost" data-a="tab" data-tab="uni">Ver todo</button></div>
     ${semana.length||planes.length ? `<div class="list">${[...semana.map(p=>({f:p.o.fecha, h:itemPendiente(p)})), ...planes.map(v=>({f:v.fecha, h:itemEvento(v)}))].sort((a,b)=>a.f.localeCompare(b.f)).map(x=>x.h).join("")}</div>` : `<div class="empty">Nada en los próximos 7 días.</div>`}</section>`;
   const am = state.animo[hoy()];
   h += `<section class="card"><div class="sec-head"><h2>¿Cómo estás hoy?</h2>${am?`<span class="muted small">Puedes cambiarlo</span>`:""}</div>
@@ -1584,7 +1602,9 @@ const hechaEn = (x,d) => x.rep ? (x.hechos||[]).includes(d) : !!x.ok;
 const tareasDe = d => state.agenda.filter(x=>aplica(x,d)).map(x=>({x, d, ok:hechaEn(x,d)}))
   .sort((a,b)=>(a.x.hora? toMin(a.x.hora):-1)-(b.x.hora? toMin(b.x.hora):-1) || (a.x.orden||0)-(b.x.orden||0));
 const atrasadas = () => state.agenda.filter(x=>!x.rep && x.fecha && !x.ok && x.fecha<hoy());
-const enBandeja = () => state.agenda.filter(x=>!x.fecha);
+const enBandeja = () => state.agenda.filter(x=>!x.fecha && !x.nota);
+// Nota de la semana: cosas inmediatas. Las tachadas se quedan visibles solo el día que se tachan.
+const notasSemana = () => state.agenda.filter(x=>x.nota && !x.fecha && (!x.ok || x.okEn===hoy())).sort((a,b)=>(a.ok-b.ok)||(a.orden||0)-(b.orden||0));
 const nAhora = () => { const n = new Date(); return n.getHours()*60+n.getMinutes(); };
 const textoRep = r => !r ? "" : r.length===7 ? "Cada día" : r.join()==="1,2,3,4,5" ? "De lunes a viernes" : r.join()==="0,6" ? "Fines de semana" : r.map(i=>DIAS_REP[i]).join(" ");
 
@@ -1716,9 +1736,8 @@ function vistaPend(){
   const ts = enBandeja().sort((a,b)=>(a.orden||0)-(b.orden||0)), abiertas = ts.filter(x=>!x.ok), hechas = ts.filter(x=>x.ok);
   const cats = [{id:"", nombre:"General", color:"var(--ink-3)"}, ...state.asignaturas];
   if (!cats.some(c=>c.id===ui.pendCat)) ui.pendCat = "";
-  let h = `<button class="btn ghost solo-movil" data-a="tab" data-tab="${ui.volver||"hoy"}" style="align-self:flex-start;padding:0;margin-bottom:-8px">${ICON.prev.replace('<svg','<svg width="16" height="16"')}Volver</button>`;
-  h += cabecera("Sin fecha", "Pendientes");
-  h += `<p class="muted" style="margin:-6px 0 0">Lo que no corre prisa pero no se te puede olvidar. Cuando sepas cuándo hacerlo, pásalo a un día con ${ICON.cal.replace('<svg','<svg width="14" height="14" style="vertical-align:-2px"')}.</p>`;
+  let h = cabecera("Sin fecha", "Pendientes");
+  h += `<p class="muted" style="margin:-6px 0 0">Cosas sueltas para las próximas semanas: no corren prisa, pero no se te pueden olvidar. Cuando sepas cuándo hacerlo, pásalo a un día con ${ICON.cal.replace('<svg','<svg width="14" height="14" style="vertical-align:-2px"')}.</p>`;
   h += `<form class="card" data-f="pendAdd" style="gap:10px"><div class="qadd"><input name="t" autocomplete="off" enterkeyhint="done" placeholder="¿Qué no se te puede olvidar?" aria-label="Nuevo pendiente"><button aria-label="Añadir">${ICON.plus}</button></div>
     <div class="chips" role="radiogroup" aria-label="Dónde apuntarlo">${cats.map(c=>`<button type="button" class="chip ${ui.pendCat===c.id?"on":""}" data-a="pendCat" data-id="${c.id}" role="radio" aria-checked="${ui.pendCat===c.id}"><span class="dot" style="background:${c.color}"></span>${esc(c.nombre)}</button>`).join("")}</div></form>`;
   const grupos = cats.map(c=>({c, xs:abiertas.filter(x=>catDe(x)===c.id)})).filter(g=>g.xs.length);
@@ -1730,6 +1749,12 @@ function vistaPend(){
   if (hechas.length) h += `<section class="card"><details><summary>Hechas (${hechas.length})</summary><div class="todos" style="margin-top:8px">${hechas.map(filaPend).join("")}</div>
     <button class="btn ghost" data-a="limpiarBandeja" style="padding:8px 0 0">Quitar las hechas</button></details></section>`;
   return h;
+}
+function bloqueNota(){
+  const ns = notasSemana();
+  return `<section class="nota" aria-label="Para esta semana"><div class="sec-head"><h2>Para esta semana</h2>${ns.length?`<span class="small">${ns.filter(x=>!x.ok).length} por hacer</span>`:""}</div>
+    ${ns.length ? `<div class="todos">${ns.map(x=>filaTarea({x, d:"", ok:!!x.ok})).join("")}</div>` : `<p class="small" style="margin:0;opacity:.75">Lo que quieres hacer estos días: llamar a alguien, comprar algo, mandar un correo…</p>`}
+    <form class="qadd" data-f="notaAdd"><input name="t" autocomplete="off" enterkeyhint="done" placeholder="Apuntar…" aria-label="Apuntar en la nota de la semana"><button aria-label="Añadir">${ICON.plus}</button></form></section>`;
 }
 function bloquePendHoy(){
   const ab = enBandeja().filter(x=>!x.ok).sort((a,b)=>(a.orden||0)-(b.orden||0));
@@ -1771,6 +1796,7 @@ function formTarea(id, pre){
     <div class="actions"><button class="btn primary">Guardar</button>
       ${id && r && pre.d ? `<button type="button" class="btn" data-a="tareaSaltar" data-id="${id}" data-d="${pre.d}">Saltar solo este día</button>` : ""}
       ${id && !r && x.fecha ? `<button type="button" class="btn" data-a="tareaManana" data-id="${id}">Pasar al día siguiente</button>` : ""}
+      ${id && !x.fecha ? (x.nota ? `<button type="button" class="btn" data-a="moverNota" data-id="${id}" data-v="0">Mover a Pendientes</button>` : `<button type="button" class="btn" data-a="moverNota" data-id="${id}" data-v="1">Mover a esta semana</button>`) : ""}
       ${id ? `<button type="button" class="btn" data-a="tareaDup" data-id="${id}">Duplicar</button>` : ""}
       ${id ? botonBorrar("tarea",id) : ""}</div></form>`);
   if (!id) document.getElementById("f-tt")?.focus();
@@ -2038,7 +2064,7 @@ document.addEventListener("click", ev => {
     case "tareaOk": { const x = state.agenda.find(t=>t.id===id); if (!x) break; const d = el.dataset.d || "";
       let ok;
       if (x.rep) { if (!d) break; x.hechos = x.hechos || []; ok = !x.hechos.includes(d); if (ok) x.hechos.push(d); else x.hechos.splice(x.hechos.indexOf(d),1); }
-      else { x.ok = !x.ok; ok = x.ok; }
+      else { x.ok = !x.ok; ok = x.ok; x.okEn = ok ? hoy() : null; }
       const r = x.rep ? id+"@"+d : id;
       if (ok) anotar("tarea", r, d || hoy()); else desanotar("tarea", r);
       commit(); refrescarHoja();
@@ -2046,6 +2072,7 @@ document.addEventListener("click", ev => {
       break; }
     case "tareaSub": { const x = state.agenda.find(t=>t.id===id), sb2 = x && (x.subs||[]).find(z=>z.id===el.dataset.s); if (!sb2) break; sb2.ok = !sb2.ok; commit(); break; }
     case "tareaEdit": formTarea(id, {d: el.dataset.d}); break;
+    case "moverNota": { const x = state.agenda.find(t=>t.id===id); if (!x) break; x.nota = el.dataset.v==="1"; x.orden = Date.now(); commit(); cerrar(); toast(x.nota ? "Movida a esta semana" : "Movida a Pendientes"); break; }
     case "nuevaTarea": formTarea(null, {fecha: el.dataset.d || ui.agDia, hora: el.dataset.h || "", conHora: true}); break;
     case "planificar": formTarea(id, {planificar: true}); break;
     case "bandeja": case "verPend": ui.volver = ui.tab==="pend" ? (ui.volver||"hoy") : ui.tab; ui.tab = "pend"; try{localStorage.setItem("sinapsis-tab","pend");}catch{} render(); scrollTo(0,0); break;
@@ -2151,6 +2178,9 @@ document.addEventListener("submit", ev => {
   ev.preventDefault();
   const v = id => { const r = (document.getElementById(id)?.value ?? "").trim(); return id==="f-color" ? r.toUpperCase() : r; };
   const id = f.dataset.id, k = f.dataset.f;
+  if (k==="notaAdd"){ const inp = f.querySelector("input"), t = inp.value.trim(); if (!t) return;
+    state.agenda.push({id:uid(), fecha:null, nota:true, asig:"", t, ok:false, orden:Date.now(), hora:"", dur:30, ico:autoIco(t), color:COLORES[0], subs:[], notas:"", rep:null}); commit();
+    document.querySelector('#app form[data-f="notaAdd"] input')?.focus({preventScroll:true}); return; }
   if (k==="pendAdd"){ const inp = f.querySelector("input"), t = inp.value.trim(); if (!t) return;
     const cat = f.dataset.asig !== undefined ? f.dataset.asig : (ui.pendCat || "");
     state.agenda.push({id:uid(), fecha:null, asig:cat, t, ok:false, orden:Date.now(), hora:"", dur:30, ico:autoIco(t), color:cat ? asig(cat).color : COLORES[7], subs:[], notas:"", rep:null}); commit();
@@ -2169,6 +2199,7 @@ document.addEventListener("submit", ev => {
     const viejo = state.agenda.find(z=>z.id===id);
     const subs = v("f-subs").split("\n").map(z=>z.trim()).filter(Boolean).map(z=>{ const o = viejo && (viejo.subs||[]).find(q=>q.t===z); return {id:o?o.id:uid(), t:z, ok:o?o.ok:false}; });
     const datos = {t, asig: v("f-asig"), ico: v("f-ico") || autoIco(t), color: v("f-color") || COLORES[1], fecha, hora, dur, rep: rp, subs, notas: v("f-notas")};
+    if (fecha) datos.nota = false;
     if (viejo) { if (viejo.fecha!==fecha) datos.orden = Date.now(); if (!viejo.rep && rp) datos.hechos = []; Object.assign(viejo, datos); }
     else state.agenda.push({id:uid(), ok:false, orden:Date.now(), hechos:[], saltar:[], ...datos});
     if (fecha && ui.tab==="cal" && ui.calVista==="semana") ui.agDia = fecha;
@@ -2279,8 +2310,8 @@ function render(){
   const vistas = {hoy:vistaHoy, uni:vistaUni, cal:vistaCal, pend:vistaPend, hab:vistaHabitos, ejer:vistaEjer, prog:vistaProgreso};
   if (!vistas[ui.tab]) ui.tab = "hoy";
   document.getElementById("app").innerHTML = tono(vistas[ui.tab]());
-  document.getElementById("tabs").innerHTML = [["hoy","Hoy"],["uni","Uni"],["cal","Calendario"],["pend","Pendientes"],["hab","Hábitos"],["ejer","Ejercicio"],["prog","Progreso"]]
-    .map(([k,l])=>`<button data-a="tab" data-tab="${k}" class="${ui.tab===k || (k===(ui.volver||"hoy") && ui.tab==="pend" && innerWidth<1024)?"on":""}" ${ui.tab===k?'aria-current="page"':""}>${ICON[k]}${l}</button>`).join("");
+  document.getElementById("tabs").innerHTML = [["hoy","Hoy"],["uni","Uni"],["cal","Calendario","Agenda"],["pend","Pendientes","Pendientes"],["hab","Hábitos"],["ejer","Ejercicio"],["prog","Progreso"]]
+    .map(([k,l,c])=>`<button data-a="tab" data-tab="${k}" class="${ui.tab===k?"on":""}" ${ui.tab===k?'aria-current="page"':""} aria-label="${l}">${ICON[k]}<span class="tl-lg">${l}</span><span class="tl-sh ${(c||l).length>8?"apr":""}">${c||l}</span></button>`).join("");
   pintarSync();
   if (ui.tab==="prog") dibujarRed(); else cancelAnimationFrame(netAnim);
   // Al abrir la agenda de esta semana, ir directo al día de hoy.

@@ -22,7 +22,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 <title>Sinapsis</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,500..800;1,9..144,400..700&family=Instrument+Sans:wght@400..700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,500..800;1,9..144,400..700&family=Instrument+Sans:wght@400..700&family=Caveat:wght@600;700&display=swap">
 <style>
 /* Layout: app de móvil a una columna (máx. 560px), cabecera con saludo, tarjetas por bloque, barra de pestañas flotante abajo.
    Estilo: rosa chicle + lila sobre fondo rubor, toques lima, serif en cursiva para el nombre y las frases. */
@@ -551,6 +551,31 @@ nav.tabs button.on{color:var(--accent);background:var(--accent-soft)}
 .nota .qadd input::placeholder{color:color-mix(in srgb,var(--pop-ink) 50%,transparent)}
 .nota .qadd input:focus{background:color-mix(in srgb,var(--surface) 45%,transparent);border-color:var(--pop-ink)}
 .nota .qadd button{background:var(--pop-ink);color:var(--pop)}
+.sorpresa{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:24px;overflow:hidden;
+  background:radial-gradient(120% 80% at 50% 0%,color-mix(in srgb,var(--accent) 35%,transparent),transparent 70%),color-mix(in srgb,var(--hero) 88%,transparent);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:spIn .45s ease-out both}
+.sorpresa.fuera{animation:spOut .38s ease-in both}
+@keyframes spIn{from{opacity:0}to{opacity:1}}
+@keyframes spOut{to{opacity:0;transform:scale(1.03)}}
+.sp-hearts i{position:absolute;bottom:-40px;left:var(--x);font-style:normal;font-size:var(--s);color:var(--pop);opacity:.0;animation:spSube var(--d) linear var(--t) infinite}
+@keyframes spSube{0%{transform:translateY(0) rotate(-10deg);opacity:0}10%{opacity:.9}100%{transform:translateY(-115vh) rotate(18deg);opacity:0}}
+.sp-card{position:relative;width:min(100%,400px);background:var(--surface);color:var(--ink);border-radius:30px;padding:34px 26px 26px;text-align:center;
+  box-shadow:0 30px 80px -20px rgba(0,0,0,.45);animation:spCard .7s cubic-bezier(.2,.9,.3,1.25) .15s both}
+.sp-card::before{content:"";position:absolute;inset:8px;border:2px dashed color-mix(in srgb,var(--accent) 35%,transparent);border-radius:24px;pointer-events:none}
+@keyframes spCard{from{transform:translateY(40px) scale(.85) rotate(-3deg);opacity:0}to{transform:none;opacity:1}}
+.sp-stk{position:absolute;top:-58px;right:-14px;width:118px;transform:rotate(10deg);filter:drop-shadow(0 8px 14px rgba(0,0,0,.25));animation:aparecer .8s cubic-bezier(.2,.9,.3,1.3) .9s both;--rot:10deg}
+.sp-dia::first-letter{text-transform:uppercase}
+.sp-dia{margin:0 0 6px;font-size:13px;font-weight:600;color:var(--ink-3)}
+.sp-tit{font-family:"Caveat",var(--f-serif),cursive;font-weight:700;font-size:50px;line-height:.95;margin:0 0 14px;color:var(--accent);letter-spacing:0}
+.sp-tit .w{display:inline-block;white-space:nowrap}
+.sp-tit .w span{display:inline-block;animation:spLetra .5s cubic-bezier(.2,.9,.3,1.5) both;animation-delay:calc(.5s + var(--i)*45ms)}
+@keyframes spLetra{from{transform:translateY(18px) scale(.4) rotate(-12deg);opacity:0}to{transform:none;opacity:1}}
+.sp-txt{margin:0 0 6px;font-size:16px;color:var(--ink-2);animation:spIn .6s ease 1.9s both}
+.sp-firma{font-family:"Caveat",var(--f-serif),cursive;font-size:32px;font-weight:700;margin:4px 0 22px;color:var(--ink);animation:spIn .6s ease 2.3s both}
+.sp-firma b{display:inline-block;color:var(--accent);animation:latido 1.1s ease-in-out 2.6s infinite}
+@keyframes latido{0%,100%{transform:scale(1)}15%{transform:scale(1.3)}30%{transform:scale(1)}45%{transform:scale(1.18)}}
+.sp-btn{animation:spIn .5s ease 2.6s both;padding:12px 22px;font-size:15px}
+@media (prefers-reduced-motion: reduce){.sp-hearts{display:none}}
 .atraso{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:var(--surface-2);font-size:14px}
 .addline input{flex:1;min-width:0;border:1.5px solid var(--line);background:var(--surface-2);border-radius:12px;padding:10px 12px;font-size:16px}
 .detail-head{display:flex;flex-direction:column;gap:6px}
@@ -611,6 +636,11 @@ const stickerDia = (k=0) => STICKERS[(diaDelAño() + k*3) % STICKERS.length];
 const stickerAzar = () => STICKERS[Math.floor(Math.random()*STICKERS.length)];
 const STICKER = STICKERS[0];
 // Mensajes que aparecen al desbloquear un logro o terminar un examen. Cámbialos por los tuyos.
+// Mensajes sorpresa de Luis: salen a pantalla completa la primera vez que abre la app ese día.
+// Para añadir otro, copia una línea y cambia el id, la fecha y los textos.
+const SORPRESAS = [
+  {id:"sorpresa-2026-11-05", fecha:"2026-11-05", titulo:"¡Mucho ánimo con el jueves!", texto:"Hoy lo vas a hacer genial, como siempre.", firma:"Luis te quiere muchísimo"}
+];
 const MENSAJES_LUIS = [
   "Sabía que lo ibas a conseguir. — Luis",
   "Una más. Qué orgulloso estoy de ti. — Luis",
@@ -2298,6 +2328,33 @@ function selectorEstilo(){
     <span class="sw3"><i></i><i></i><i></i></span><b style="font-family:'${e.f}',serif">${esc(e.n)}</b><span>${esc(e.d)}</span></button>`).join("")}</div>`;
 }
 
+/* ---------- Mensaje sorpresa ---------- */
+function revisarSorpresa(){
+  const m = SORPRESAS.find(x=>x.fecha===hoy() && !state.vistos.includes(x.id));
+  if (!m || document.querySelector(".sorpresa")) return;
+  let local = false; try { local = localStorage.getItem("sinapsis-"+m.id)==="1"; } catch {}
+  if (local) return;
+  state.vistos.push(m.id); try { localStorage.setItem("sinapsis-"+m.id,"1"); } catch {}
+  state.updatedAt = Date.now(); guardarLocal(); programarGuardado();
+  let n = 0; const letras = t => t.split(" ").map(w=>`<span class="w">${[...w].map(c=>`<span style="--i:${n++}">${esc(c)}</span>`).join("")}</span>`).join(" ");
+  const corazones = Array.from({length:18},(_,i)=>`<i style="--x:${Math.round(Math.random()*100)}%;--d:${(5+Math.random()*5).toFixed(1)}s;--t:${(Math.random()*4).toFixed(1)}s;--s:${(14+Math.random()*22)|0}px">${["❤","♡","❥","✿","♥"][i%5]}</i>`).join("");
+  const el = document.createElement("div");
+  el.className = "sorpresa"; el.setAttribute("role","dialog"); el.setAttribute("aria-modal","true"); el.setAttribute("aria-label", m.titulo);
+  el.innerHTML = `<div class="sp-hearts" aria-hidden="true">${corazones}</div>
+    <div class="sp-card"><img class="sp-stk" src="${stickerAzar()}" alt="">
+      <p class="sp-dia">${esc(fmtLargo(new Date()))}</p>
+      <h2 class="sp-tit" aria-hidden="true">${letras(m.titulo)}</h2>
+      <p class="sp-txt">${esc(m.texto)}</p>
+      <p class="sp-firma">${esc(m.firma)} <b aria-hidden="true">❤</b></p>
+      <button class="btn primary sp-btn" data-sp="cerrar">Gracias, amor</button></div>`;
+  document.body.appendChild(el);
+  setTimeout(()=>confeti(true), 900);
+  el.querySelector(".sp-btn").focus({preventScroll:true});
+  const cerrarSp = () => { el.classList.add("fuera"); setTimeout(()=>el.remove(), 380); };
+  el.addEventListener("click", e => { if (e.target.closest("[data-sp]") || e.target===el) cerrarSp(); });
+  document.addEventListener("keydown", function k(e){ if (e.key==="Escape"){ cerrarSp(); document.removeEventListener("keydown", k); } });
+}
+
 /* ---------- Render ---------- */
 function pintarSync(){
   const el = document.getElementById("sync"); if (!el) return;
@@ -2321,6 +2378,7 @@ addEventListener("resize", () => { if (ui.tab==="prog") dibujarRed(); });
 try { localStorage.removeItem("sinapsis-faceid"); } catch {}
 render();
 conectar();
+setTimeout(revisarSorpresa, 1600);
 if (WEB && "serviceWorker" in navigator) { try { navigator.serviceWorker.register("sw.js"); } catch {} }
 </script>
 
